@@ -3,7 +3,7 @@ services:
     image: mysql:8.0
     container_name: bars_mysql_db
     environment:
-      MYSQL_ROOT_PASSWORD: 12345 # Cambia esto por una contraseña segura
+      MYSQL_ROOT_PASSWORD: 12345
       MYSQL_DATABASE: bars_db
       MYSQL_USER: diego
       MYSQL_PASSWORD: 12345
@@ -11,8 +11,14 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql # Script para inicializar la DB
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
+    healthcheck: # ¡Añade esto!
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "diego", "-p12345"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s # Dale tiempo para que el servidor MySQL inicie
 
   app: # Este servicio lo usaremos más tarde para la aplicación Flask
     build: .
@@ -28,8 +34,11 @@ services:
       MYSQL_DB: bars_db
       SECRET_KEY: ADMINISTRADOR # Considera usar variables de entorno de Docker
     depends_on:
-      - db
+      db: # ¡Aquí es donde cambia! Es un diccionario donde la clave es el nombre del servicio
+        condition: service_healthy
+
     restart: unless-stopped
+    
 
 volumes:
   mysql_data:
