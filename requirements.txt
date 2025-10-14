@@ -1,0 +1,8 @@
+Flask
+Flask-SQLAlchemy
+PyMySQL
+python-dotenv
+Werkzeug
+bcrypt # Para hashing de contraseñas
+Flask-Login # Para gestión de sesiones de usuario
+cryptography

@@ -1,0 +1,35 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: bars_mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345 # Cambia esto por una contraseña segura
+      MYSQL_DATABASE: bars_db
+      MYSQL_USER: diego
+      MYSQL_PASSWORD: 12345
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql # Script para inicializar la DB
+    restart: unless-stopped
+
+  app: # Este servicio lo usaremos más tarde para la aplicación Flask
+    build: .
+    container_name: bars_flask_app
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    environment:
+      MYSQL_HOST: db
+      MYSQL_USER: diego
+      MYSQL_PASSWORD: 12345
+      MYSQL_DB: bars_db
+      SECRET_KEY: ADMINISTRADOR # Considera usar variables de entorno de Docker
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
