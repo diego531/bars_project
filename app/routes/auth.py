@@ -77,16 +77,16 @@ def admin_dashboard():
 def cashier_dashboard():
     if current_user.role.nombre_rol != 'Cajero':
         flash('Acceso denegado. Solo cajeros pueden acceder.', 'danger')
-        return redirect(url_for('auth.dashboard'))
-    return f'Bienvenido Cajero, {current_user.nombre_completo}.'
+        return redirect(url_for('auth.cashier_dashboard'))
+    return render_template('cashier/cashier_dashboard.html', user=current_user) # Renderiza una plantilla para el cajero dashboard
 
 @auth_bp.route('/waiter_dashboard')
 @login_required
 def waiter_dashboard():
     if current_user.role.nombre_rol != 'Mesero':
         flash('Acceso denegado. Solo meseros pueden acceder.', 'danger')
-        return redirect(url_for('auth.dashboard'))
-    return f'Bienvenido Mesero, {current_user.nombre_completo}.'
+        return redirect(url_for('auth.waiter_dashboard'))
+    return render_template('waiter/waiter_dashboard.html', user=current_user) # Renderiza una plantilla para el mesero dashboard
 
 # --- Gestión de Usuarios ---
 @auth_bp.route('/admin/users')
