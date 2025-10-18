@@ -8,12 +8,22 @@ auth_bp = Blueprint('auth', __name__, template_folder='../templates')
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('auth.dashboard')) # Redirige si ya está logueado
+        # Redirige según el rol si ya está autenticado
+        if current_user.role.nombre_rol == 'Administrador':
+            return redirect(url_for('auth.admin_dashboard'))
+        elif current_user.role.nombre_rol == 'Cajero':
+            return redirect(url_for('auth.cashier_dashboard'))
+        elif current_user.role.nombre_rol == 'Mesero':
+            return redirect(url_for('auth.waiter_dashboard'))
+        return redirect(url_for('auth.dashboard'))
+
+    # Esta línea debe estar disponible en ambos caminos (GET y POST con error)
+    roles = Role.query.all() # Consulta los roles UNA SOLA VEZ
 
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        role_id = request.form['role']
+        role_id = request.form['role'] # Este es el id_rol seleccionado
 
         user = User.query.filter_by(nombre_usuario=username, id_rol=role_id).first()
 
@@ -22,18 +32,25 @@ def login():
             flash(f'¡Bienvenido, {user.nombre_completo}!', 'success')
             # Redirigir según el rol
             if user.role.nombre_rol == 'Administrador':
-                return redirect(url_for('auth.admin_dashboard')) # Cambiar a la ruta real de admin
+                return redirect(url_for('auth.admin_dashboard'))
             elif user.role.nombre_rol == 'Cajero':
-                return redirect(url_for('auth.cashier_dashboard')) # Cambiar a la ruta real de cajero
+                return redirect(url_for('auth.cashier_dashboard'))
             elif user.role.nombre_rol == 'Mesero':
-                return redirect(url_for('auth.waiter_dashboard')) # Cambiar a la ruta real de mesero
-            return redirect(url_for('auth.dashboard')) # Ruta por defecto si no es ninguno de los anteriores
+                return redirect(url_for('auth.waiter_dashboard'))
+            return redirect(url_for('auth.dashboard'))
         else:
             flash('Datos incorrectos. Por favor, verifica tu usuario, contraseña y rol.', 'danger')
-            return render_template('login.html', username=username, selected_role=role_id) # Volver a renderizar con datos
+            # Si hay un error, volvemos a renderizar, pero ahora PASAMOS 'roles'
+            # y también 'selected_role' para mantener la opción seleccionada.
+            return render_template(
+                '/login.html',
+                username=username,
+                selected_role=int(role_id), # Asegúrate de que sea un entero para la comparación
+                roles=roles # ¡Aquí es donde le volvemos a pasar la lista de roles!
+            )
 
-    roles = Role.query.all()
-    return render_template('login.html', roles=roles)
+    # Para la primera carga de la página (GET)
+    return render_template('/login.html', roles=roles)
 
 @auth_bp.route('/logout')
 @login_required
@@ -193,3 +210,10 @@ def delete_user(user_id):
         flash(f'Error al eliminar usuario: {e}', 'danger')
 
     return redirect(url_for('auth.manage_users'))
+
+@auth_bp.route('/forgot_password')
+def forgot_password():
+    # Por ahora, simplemente redirigimos a una página informativa o un placeholder.
+    # La implementación real de recuperación de contraseña es más compleja (email, tokens, etc.).
+    flash('Funcionalidad de recuperación de contraseña en desarrollo. Por favor, contacta al soporte técnico.', 'info')
+    return render_template('auth/forgot_password.html') # Creamos una plantilla simple para esto
