@@ -18,6 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
     passwordInput.addEventListener('input', checkInputs);
     roleSelect.addEventListener('change', checkInputs);
 
-    // Llamar una vez al cargar para verificar el estado inicial (ej. si hay valores precargados)
+    // Llamar una vez al cargar para verificar el estado inicial 
     checkInputs();
 });

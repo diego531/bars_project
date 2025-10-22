@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container my-4" style="max-width: 600px;"> {# Limitar ancho para el formulario #}
+    <div class="container my-4" style="max-width: 600px;"> 
         <h1>{{ 'Crear Nuevo Usuario' if not is_edit else 'Editar Usuario: ' ~ user.nombre_usuario }}</h1>
         <a href="{{ url_for('auth.admin_dashboard') }}" class="btn btn-outline-secondary mb-3">← Volver al Dashboard</a>
 

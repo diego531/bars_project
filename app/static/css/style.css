@@ -1,10 +1,9 @@
-/* Importar Bootstrap CSS (si lo descargas y lo tienes localmente) */
-/* @import url('/static/css/bootstrap.min.css'); */
+
 
 /* Estilos Generales - APLICADO A TODA LA APLICACIÓN */
 body {
     font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    background-image: url('../img/Fondo.jpg'); /* Ruta a tu imagen de fondo para toda la app */
+    background-image: url('../img/Fondo.jpg'); /* Imagen de fondo */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -48,7 +47,7 @@ body {
 
 /* Estilos para el logo del login */
 .login-logo {
-    max-width: 150px; /* Ajusta el tamaño de tu logo */
+    max-width: 150px; /* Ajusta el tamaño del logo */
     height: auto;
     margin-bottom: 1.5rem;
     display: block;
@@ -96,7 +95,7 @@ body {
     text-decoration: underline;
 }
 
-/* Navbar o encabezado si se añade en el futuro */
+/* Navbar */
 .navbar {
     background-color: rgba(52, 58, 64, 0.9); /* Un poco transparente para ver el fondo */
     box-shadow: 0 2px 4px rgba(0,0,0,.1);
@@ -108,7 +107,7 @@ body {
     color: #d4d4d4 !important;
 }
 
-/* Footer (si se añade en el futuro) */
+/* Footer  */
 .footer {
     padding: 15px 0;
     text-align: center;

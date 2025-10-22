@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container my-4"> {# Usamos "my-4" para margen superior e inferior #}
+    <div class="container my-4"> 
         <h1>Bienvenido Administrador</h1>
         <div class="mb-3">
             <a href="{{ url_for('auth.manage_users') }}" class="btn btn-primary me-2">Gestionar Usuarios</a>
@@ -28,7 +28,7 @@
         {% endwith %}
 
         <p>Desde aquí puedes gestionar todas las configuraciones del sistema BARS.</p>
-        <!-- Más contenido del dashboard -->
+    
     </div>
 
     <!-- Bootstrap JS (CDN) -->

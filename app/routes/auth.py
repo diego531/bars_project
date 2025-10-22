@@ -46,8 +46,8 @@ def login():
             return render_template(
                 '/login.html',
                 username=username,
-                selected_role=int(role_id), # Asegúrate de que sea un entero para la comparación
-                roles=roles # ¡Aquí es donde le volvemos a pasar la lista de roles!
+                selected_role=int(role_id), 
+                roles=roles # Aquí es donde le volvemos a pasar la lista de roles
             )
 
     # Para la primera carga de la página (GET)
@@ -113,7 +113,7 @@ def create_user():
         nombre_completo = request.form['nombre_completo']
         contrasena = request.form['contrasena']
         confirmar_contrasena = request.form['confirmar_contrasena']
-        id_rol_seleccionado = int(request.form['id_rol']) # Usar un nombre de variable más claro aquí
+        id_rol_seleccionado = int(request.form['id_rol']) 
 
         # Validaciones
         if not all([nombre_usuario, nombre_completo, contrasena, confirmar_contrasena]):
@@ -139,7 +139,7 @@ def create_user():
             new_user = User(
                 nombre_usuario=nombre_usuario,
                 nombre_completo=nombre_completo,
-                id_rol=id_rol_seleccionado # Usar la variable corregida
+                id_rol=id_rol_seleccionado 
             )
             new_user.set_password(contrasena) # Hashear la contraseña
             db.session.add(new_user)
@@ -166,7 +166,7 @@ def edit_user(user_id):
         # Definir las nuevas variables a partir del formulario
         new_nombre_usuario = request.form['nombre_usuario']
         new_nombre_completo = request.form['nombre_completo']
-        new_id_rol_seleccionado = int(request.form['id_rol']) # Corregido: Definido aquí
+        new_id_rol_seleccionado = int(request.form['id_rol']) 
         contrasena = request.form['contrasena']
         confirmar_contrasena = request.form['confirmar_contrasena']
 
@@ -212,7 +212,7 @@ def edit_user(user_id):
 
         # Si el usuario actual es administrador Y se le quiere cambiar el rol A un no-admin
         # Y no hay otros administradores registrados (solo él)
-        if admin_role: # Asegurarse de que el rol de admin existe
+        if admin_role:
             admin_count_total = User.query.filter_by(id_rol=admin_role.id_rol).count()
             if is_current_user_admin and is_new_role_not_admin and admin_count_total <= 1:
                 flash('No puedes cambiar el rol del único administrador del sistema. Debe haber al menos un administrador.', 'danger')
@@ -245,7 +245,7 @@ def delete_user(user_id):
         flash('Acceso denegado. Solo administradores pueden eliminar usuarios.', 'danger')
         return redirect(url_for('auth.dashboard'))
 
-    user_to_delete = User.query.get_or_404(user_id) # Corregido: Definir user_to_delete aquí
+    user_to_delete = User.query.get_or_404(user_id) 
 
     # Evitar que un administrador se elimine a sí mismo
     if user_to_delete.id_usuario == current_user.id_usuario:
@@ -274,6 +274,5 @@ def delete_user(user_id):
 @auth_bp.route('/forgot_password')
 def forgot_password():
     # Por ahora, simplemente redirigimos a una página informativa o un placeholder.
-    # La implementación real de recuperación de contraseña es más compleja (email, tokens, etc.).
     flash('Funcionalidad de recuperación de contraseña en desarrollo. Por favor, contacta al soporte técnico.', 'info')
-    return render_template('auth/forgot_password.html') # Creamos una plantilla simple para esto
+    return render_template('auth/forgot_password.html') 

@@ -13,14 +13,14 @@ services:
       - mysql_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
-    healthcheck: # ¡Añade esto!
+    healthcheck: #
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "diego", "-p12345"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s # Dale tiempo para que el servidor MySQL inicie
+      start_period: 30s # Tiempo en que mysql inicia
 
-  app: # Este servicio lo usaremos más tarde para la aplicación Flask
+  app: # almacena la aplicacion 
     build: .
     container_name: bars_flask_app
     ports:
@@ -32,9 +32,9 @@ services:
       MYSQL_USER: diego
       MYSQL_PASSWORD: 12345
       MYSQL_DB: bars_db
-      SECRET_KEY: ADMINISTRADOR # Considera usar variables de entorno de Docker
+      SECRET_KEY: ADMINISTRADOR 
     depends_on:
-      db: # ¡Aquí es donde cambia! Es un diccionario donde la clave es el nombre del servicio
+      db: 
         condition: service_healthy
 
     restart: unless-stopped

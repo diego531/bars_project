@@ -39,7 +39,7 @@ def create_app():
             db.session.add(Role(nombre_rol='Mesero'))
             db.session.commit()
 
-        # Asegúrate de que un admin exista (con contraseña hasheada)
+        # Verificacion de administrador con contraseña
         from app.models.user import User
         from werkzeug.security import generate_password_hash
         admin_role = Role.query.filter_by(nombre_rol='Administrador').first()
