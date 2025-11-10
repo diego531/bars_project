@@ -29,6 +29,29 @@ CREATE TABLE IF NOT EXISTS `bars_db`.`Usuarios` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
+-- -----------------------------------------------------
+-- Table `bars_db`.`Sedes`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `bars_db`.`Sedes` (
+  `id_sede` INT NOT NULL AUTO_INCREMENT,
+  `nombre_sede` VARCHAR(45) NOT NULL UNIQUE, -- Añadido NOT NULL UNIQUE
+  PRIMARY KEY (`id_sede`));
+
+-- -----------------------------------------------------
+-- Table `bars_db`.`Mesas`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `bars_db`.`Mesas` (
+  `id_mesa` INT NOT NULL AUTO_INCREMENT,
+  `estado` VARCHAR(45) NOT NULL DEFAULT 'libre', -- Añadido NOT NULL y DEFAULT 'libre'
+  `id_sede` INT NOT NULL,
+  PRIMARY KEY (`id_mesa`),
+  INDEX `fk_Mesas_Sedes1_idx` (`id_sede` ASC),
+  CONSTRAINT `fk_Mesas_Sedes1`
+    FOREIGN KEY (`id_sede`)
+    REFERENCES `bars_db`.`Sedes` (`id_sede`)
+    ON DELETE CASCADE -- Cambiado a CASCADE para que al eliminar una sede, sus mesas se eliminen
+    ON UPDATE NO ACTION);
+
 -- INSERTAR DATOS INICIALES (para pruebas)
 INSERT INTO Roles (nombre_rol) VALUES ('Administrador'), ('Cajero'), ('Mesero');
 

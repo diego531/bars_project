@@ -4,12 +4,12 @@ from flask_login import LoginManager
 from app.config import Config
 import pymysql
 
-pymysql.install_as_MySQLdb() # Necesario para Flask-SQLAlchemy con PyMySQL
+pymysql.install_as_MySQLdb()
 
 db = SQLAlchemy()
 login_manager = LoginManager()
-login_manager.login_view = 'auth.login' # Define la ruta para redirigir si no está logueado
-login_manager.login_message_category = 'info' # Categoría de mensaje para Flash
+login_manager.login_view = 'auth.login'
+login_manager.login_message_category = 'info'
 
 def create_app():
     app = Flask(__name__)
@@ -20,7 +20,10 @@ def create_app():
 
     # Importar y registrar blueprints
     from app.routes.auth import auth_bp
+    from app.routes.admin_branches import admin_branches_bp # NUEVO: Importar la blueprint de admin_branches
     app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(admin_branches_bp, url_prefix='/admin/branches') # NUEVO: Registrar la blueprint con su propio prefijo
+
 
     # Ruta por defecto para redirigir al login
     @app.route('/')
@@ -29,22 +32,24 @@ def create_app():
         return redirect(url_for('auth.login'))
 
     with app.app_context():
+        # Importa los nuevos modelos para que db.create_all() los considere
+        from app.models.user import Role, User
+        from app.models.branch import Sede, Mesa # NUEVO: Importa los modelos de sede y mesa
+
         db.create_all() # Crea las tablas si no existen
 
         # Asegúrate de que los roles existan
-        from app.models.user import Role
         if not Role.query.filter_by(nombre_rol='Administrador').first():
             db.session.add(Role(nombre_rol='Administrador'))
             db.session.add(Role(nombre_rol='Cajero'))
             db.session.add(Role(nombre_rol='Mesero'))
             db.session.commit()
 
-        # Verificacion de administrador con contraseña
-        from app.models.user import User
-        from werkzeug.security import generate_password_hash
+        # Asegúrate de que un admin exista (con contraseña hasheada)
         admin_role = Role.query.filter_by(nombre_rol='Administrador').first()
         if admin_role and not User.query.filter_by(nombre_usuario='admin').first():
-            hashed_password = generate_password_hash('admin123', method='pbkdf2:sha256') # Hashing más seguro
+            from werkzeug.security import generate_password_hash
+            hashed_password = generate_password_hash('admin123', method='pbkdf2:sha256')
             admin_user = User(nombre_usuario='admin', contrasena=hashed_password, nombre_completo='Admin BARS', id_rol=admin_role.id_rol)
             db.session.add(admin_user)
             db.session.commit()

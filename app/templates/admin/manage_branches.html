@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Sedes - BARS</title>
+    <!-- Bootstrap CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Gestión de Sedes</h1>
+        <a href="{{ url_for('auth.admin_dashboard') }}" class="back-link">← Volver al Dashboard</a>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <a href="{{ url_for('admin_branches.create_branch') }}" class="button">Crear Nueva Sede</a> {# IMPORTANTE: Cambiado a admin_branches.create_branch #}
+
+        {% if sedes_con_mesas %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre de Sede</th>
+                        <th>Número de Mesas</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in sedes_con_mesas %}
+                    <tr>
+                        <td>{{ item.sede.id_sede }}</td>
+                        <td>{{ item.sede.nombre_sede }}</td>
+                        <td>{{ item.num_mesas }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_branches.edit_branch', branch_id=item.sede.id_sede) }}" class="button edit">Editar</a> {# IMPORTANTE: Cambiado a admin_branches.edit_branch #}
+                            <form action="{{ url_for('admin_branches.delete_branch', branch_id=item.sede.id_sede) }}" method="POST" style="display:inline;"> {# IMPORTANTE: Cambiado a admin_branches.delete_branch #}
+                                <button type="submit" class="button delete" onclick="return confirm('¿Estás seguro de que quieres eliminar la sede {{ item.sede.nombre_sede }} y todas sus mesas?');">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No hay sedes registradas.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

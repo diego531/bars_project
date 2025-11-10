@@ -8,7 +8,7 @@ services:
       MYSQL_USER: diego
       MYSQL_PASSWORD: 12345
     ports:
-      - "3308:3308"
+      - "3308:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -18,7 +18,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s # Tiempo en que mysql inicia
+      start_period: 60s # Tiempo en que mysql inicia
 
   app: # almacena la aplicacion 
     build: .
