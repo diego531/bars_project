@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Administrador - BARS</title>
-    <!-- Incluir Bootstrap CSS desde CDN -->
+    <!-- Bootstrap CSS (CDN) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Tu hoja de estilos personalizada -->
+    <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -23,6 +23,12 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('admin_branches.manage_branches') }}">Gestionar Sedes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_products.manage_categories') }}">Gestionar Categorías de Productos</a> {# NUEVO ENLACE #}
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_products.manage_products') }}">Gestionar Productos</a> {# NUEVO ENLACE #}
                     </li>
                     <!-- Añadir más enlaces de navegación aquí si es necesario -->
                 </ul>
@@ -67,6 +73,24 @@
                         <h5 class="card-title">Gestión de Sedes</h5>
                         <p class="card-text">Administra las diferentes ubicaciones y sus mesas asociadas.</p>
                         <a href="{{ url_for('admin_branches.manage_branches') }}" class="btn btn-primary">Ir a Sedes</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Gestionar Categorías de Productos</h5>
+                        <p class="card-text">Administra las diferentes categorias de productos.</p>
+                        <a href="{{ url_for('admin_products.manage_categories') }}" class="btn btn-primary">Ir a Categoria productos</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Gestión de Productos</h5>
+                        <p class="card-text">Crea, edita o elimina los productos asociados a una categoria</p>
+                        <a href="{{ url_for('admin_products.manage_products') }}" class="btn btn-primary">Ir a Gestionar Productos</a>
                     </div>
                 </div>
             </div>

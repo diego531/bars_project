@@ -52,6 +52,36 @@ CREATE TABLE IF NOT EXISTS `bars_db`.`Mesas` (
     ON DELETE CASCADE -- Cambiado a CASCADE para que al eliminar una sede, sus mesas se eliminen
     ON UPDATE NO ACTION);
 
+-- -----------------------------------------------------
+-- Table `bars_db`.`Categorias_Producto`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `bars_db`.`Categorias_Producto` (
+  `id_categoria` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NOT NULL,
+  `descripcion` VARCHAR(100) NULL,
+  PRIMARY KEY (`id_categoria`),
+  UNIQUE INDEX `nombre_UNIQUE` (`nombre` ASC));
+
+
+-- -----------------------------------------------------
+-- Table `bars_db`.`Productos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `bars_db`.`Productos` (
+  `id_producto` INT NOT NULL AUTO_INCREMENT,
+  `codigo` VARCHAR(45) NULL UNIQUE, -- Añadido UNIQUE para el código
+  `nombre` VARCHAR(100) NOT NULL,
+  `descripcion` VARCHAR(100) NULL,
+  `costo_compra` DECIMAL(10,2) NOT NULL,
+  `precio_venta` DECIMAL(10,2) NOT NULL,
+  `id_categoria` INT NOT NULL,
+  PRIMARY KEY (`id_producto`),
+  INDEX `fk_Productos_Categorias_Producto1_idx` (`id_categoria` ASC),
+  CONSTRAINT `fk_Productos_Categorias_Producto1`
+    FOREIGN KEY (`id_categoria`)
+    REFERENCES `bars_db`.`Categorias_Producto` (`id_categoria`)
+    ON DELETE RESTRICT -- Cambiado a RESTRICT para evitar eliminar categorías con productos
+    ON UPDATE NO ACTION);
+
 -- INSERTAR DATOS INICIALES (para pruebas)
 INSERT INTO Roles (nombre_rol) VALUES ('Administrador'), ('Cajero'), ('Mesero');
 

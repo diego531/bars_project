@@ -21,9 +21,11 @@ def create_app():
     # Importar y registrar blueprints
     from app.routes.auth import auth_bp
     from app.routes.admin_branches import admin_branches_bp # NUEVO: Importar la blueprint de admin_branches
+    from app.routes.admin_products import admin_products_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(admin_branches_bp, url_prefix='/admin/branches') # NUEVO: Registrar la blueprint con su propio prefijo
-
+    app.register_blueprint(admin_products_bp, url_prefix='/admin') # NUEVO: Registrar la nueva Blueprint con un prefijo /admin
+    
 
     # Ruta por defecto para redirigir al login
     @app.route('/')
@@ -35,6 +37,7 @@ def create_app():
         # Importa los nuevos modelos para que db.create_all() los considere
         from app.models.user import Role, User
         from app.models.branch import Sede, Mesa # NUEVO: Importa los modelos de sede y mesa
+        from app.models.product import CategoriaProducto, Producto
 
         db.create_all() # Crea las tablas si no existen
 
