@@ -82,6 +82,30 @@ CREATE TABLE IF NOT EXISTS `bars_db`.`Productos` (
     ON DELETE RESTRICT -- Cambiado a RESTRICT para evitar eliminar categorías con productos
     ON UPDATE NO ACTION);
 
+-- -----------------------------------------------------
+-- Table `bars_db`.`Inventario`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `bars_db`.`Inventario` (
+  `id_inventario` INT NOT NULL AUTO_INCREMENT,
+  `cantidad` INT NOT NULL DEFAULT 0,
+  `esta_bloqueado` TINYINT(1) NOT NULL DEFAULT 0, -- 0 para falso, 1 para verdadero
+  `id_producto` INT NOT NULL,
+  `id_sede` INT NOT NULL,
+  PRIMARY KEY (`id_inventario`),
+  UNIQUE INDEX `_producto_sede_uc` (`id_producto` ASC, `id_sede` ASC),
+  INDEX `fk_Inventario_Productos1_idx` (`id_producto` ASC),
+  INDEX `fk_Inventario_Sedes1_idx` (`id_sede` ASC),
+  CONSTRAINT `fk_Inventario_Productos1`
+    FOREIGN KEY (`id_producto`)
+    REFERENCES `bars_db`.`Productos` (`id_producto`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Inventario_Sedes1`
+    FOREIGN KEY (`id_sede`)
+    REFERENCES `bars_db`.`Sedes` (`id_sede`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION);
+    
 -- INSERTAR DATOS INICIALES (para pruebas)
 INSERT INTO Roles (nombre_rol) VALUES ('Administrador'), ('Cajero'), ('Mesero');
 

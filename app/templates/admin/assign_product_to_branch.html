@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignar Producto a {{ sede.nombre_sede }} - BARS</title>
+    <!-- Bootstrap CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Asignar Producto a Inventario de {{ sede.nombre_sede }}</h1>
+        <a href="{{ url_for('admin_inventory.manage_inventory', sede_id=sede.id_sede) }}" class="back-link">← Volver al Inventario de {{ sede.nombre_sede }}</a>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('admin_inventory.assign_product_to_branch', sede_id=sede.id_sede) }}" method="POST">
+            <div class="form-group">
+                <label for="id_producto">Producto:</label>
+                <select id="id_producto" name="id_producto" required>
+                    <option value="">Selecciona un producto</option>
+                    {% for prod in productos_disponibles %}
+                        <option value="{{ prod.id_producto }}">{{ prod.nombre }} ({{ prod.categoria.nombre if prod.categoria else 'Sin Categoría' }})</option>
+                    {% endfor %}
+                </select>
+                {% if not productos_disponibles %}
+                    <p class="text-muted mt-2">No hay productos disponibles para asignar a esta sede. Todos los productos ya están en el inventario o no hay productos creados.</p>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="cantidad">Cantidad Inicial:</label>
+                <input type="number" id="cantidad" name="cantidad" min="0" value="0" required>
+                <small class="form-text text-muted">Establece 0 si el producto está inicialmente sin stock.</small>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="esta_bloqueado" name="esta_bloqueado">
+                <label class="form-check-label" for="esta_bloqueado">Bloquear producto inicialmente (cantidad se establecerá a 0)</label>
+            </div>
+            <button type="submit" class="button" {% if not productos_disponibles %}disabled{% endif %}>Asignar Producto</button>
+            <a href="{{ url_for('admin_inventory.manage_inventory', sede_id=sede.id_sede) }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</body>
+</html>

@@ -19,6 +19,9 @@ class Producto(db.Model):
     costo_compra = db.Column(db.Numeric(10, 2), nullable=False)
     precio_venta = db.Column(db.Numeric(10, 2), nullable=False)
     id_categoria = db.Column(db.Integer, db.ForeignKey('Categorias_Producto.id_categoria'), nullable=False)
+    #Relacion con inventario
+    inventarios = db.relationship('Inventario', backref='producto', lazy='dynamic', cascade='all, delete-orphan')
+
 
     def __repr__(self):
         return f'<Producto {self.nombre}>'

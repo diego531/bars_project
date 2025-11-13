@@ -16,13 +16,14 @@ def manage_branches():
         return redirect(url_for('auth.dashboard')) # Redirige al dashboard general si no es admin
 
     sedes = Sede.query.all()
-    sedes_con_mesas = []
+    sedes_con_info = []
     for sede in sedes:
-        sedes_con_mesas.append({
+        sedes_con_info.append({
             'sede': sede,
-            'num_mesas': sede.mesas.count()
+            'num_mesas': sede.mesas.count(),
+            'num_productos_en_inventario': sede.inventarios.count()
         })
-    return render_template('manage_branches.html', sedes_con_mesas=sedes_con_mesas) # Note: 'admin/' se infiere del template_folder
+    return render_template('manage_branches.html', sedes_con_info=sedes_con_info) # Renombré la variable para mayor claridad
 
 @admin_branches_bp.route('/create', methods=['GET', 'POST'])
 @login_required

@@ -22,29 +22,32 @@
             {% endif %}
         {% endwith %}
 
-        <a href="{{ url_for('admin_branches.create_branch') }}" class="button">Crear Nueva Sede</a> {# IMPORTANTE: Cambiado a admin_branches.create_branch #}
+        <a href="{{ url_for('admin_branches.create_branch') }}" class="button">Crear Nueva Sede</a>
 
-        {% if sedes_con_mesas %}
+        {% if sedes_con_info %} {# CAMBIADO AQUÍ #}
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Nombre de Sede</th>
                         <th>Número de Mesas</th>
+                        <th>Productos en Inventario</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for item in sedes_con_mesas %}
+                    {% for item in sedes_con_info %} {# CAMBIADO AQUÍ #}
                     <tr>
                         <td>{{ item.sede.id_sede }}</td>
                         <td>{{ item.sede.nombre_sede }}</td>
                         <td>{{ item.num_mesas }}</td>
+                        <td>{{ item.num_productos_en_inventario }}</td>
                         <td>
-                            <a href="{{ url_for('admin_branches.edit_branch', branch_id=item.sede.id_sede) }}" class="button edit">Editar</a> {# IMPORTANTE: Cambiado a admin_branches.edit_branch #}
-                            <form action="{{ url_for('admin_branches.delete_branch', branch_id=item.sede.id_sede) }}" method="POST" style="display:inline;"> {# IMPORTANTE: Cambiado a admin_branches.delete_branch #}
-                                <button type="submit" class="button delete" onclick="return confirm('¿Estás seguro de que quieres eliminar la sede {{ item.sede.nombre_sede }} y todas sus mesas?');">Eliminar</button>
+                            <a href="{{ url_for('admin_branches.edit_branch', branch_id=item.sede.id_sede) }}" class="button edit">Editar Sede</a>
+                            <form action="{{ url_for('admin_branches.delete_branch', branch_id=item.sede.id_sede) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="button delete" onclick="return confirm('¿Estás seguro de que quieres eliminar la sede {{ item.sede.nombre_sede }}? Esto eliminará también todas sus mesas.');">Eliminar Sede</button>
                             </form>
+                            <a href="{{ url_for('admin_inventory.manage_inventory', sede_id=item.sede.id_sede) }}" class="button">Gestionar Inventario</a> {# CAMBIADO EL url_for #}
                         </td>
                     </tr>
                     {% endfor %}

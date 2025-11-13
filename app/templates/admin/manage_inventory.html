@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario de {{ sede.nombre_sede }} - BARS</title>
+    <!-- Bootstrap CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .blocked {
+            background-color: #f8d7da; /* Rojo claro para items bloqueados */
+        }
+        .blocked td {
+            color: #721c24; /* Texto rojo oscuro */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Inventario de {{ sede.nombre_sede }}</h1>
+        <a href="{{ url_for('admin_branches.manage_branches') }}" class="back-link">← Volver a Gestión de Sedes</a>
+        <a href="{{ url_for('auth.admin_dashboard') }}" class="back-link float-end">← Volver al Dashboard</a>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <a href="{{ url_for('admin_inventory.assign_product_to_branch', sede_id=sede.id_sede) }}" class="button">Asignar Nuevo Producto</a>
+
+        {% if inventario %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID Inventario</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Cantidad</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in inventario %}
+                    <tr class="{{ 'blocked' if item.esta_bloqueado or item.cantidad == 0 }}">
+                        <td>{{ item.id_inventario }}</td>
+                        <td>{{ item.producto.nombre }} ({{ item.producto.codigo if item.producto.codigo else 'N/A' }})</td>
+                        <td>{{ item.producto.categoria.nombre if item.producto.categoria else 'N/A' }}</td>
+                        <td>{{ item.cantidad }}</td>
+                        <td>
+                            {% if item.esta_bloqueado or item.cantidad == 0 %}
+                                <span class="badge bg-danger">BLOQUEADO (Sin Stock)</span>
+                            {% else %}
+                                <span class="badge bg-success">Disponible</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin_inventory.edit_inventory_item', item_id=item.id_inventario) }}" class="button edit">Editar</a>
+                            <form action="{{ url_for('admin_inventory.toggle_block_inventory_item', item_id=item.id_inventario) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="button {% if item.esta_bloqueado %}btn-success{% else %}btn-warning{% endif %}">
+                                    {% if item.esta_bloqueado %}Desbloquear{% else %}Bloquear{% endif %}
+                                </button>
+                            </form>
+                            <form action="{{ url_for('admin_inventory.remove_inventory_item', item_id=item.id_inventario) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="button delete" onclick="return confirm('¿Estás seguro de que quieres desasignar el producto {{ item.producto.nombre }} de {{ sede.nombre_sede }}? Si tiene stock, se bloqueará primero.');">Desasignar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No hay productos asignados a esta sede. <a href="{{ url_for('admin_inventory.assign_product_to_branch', sede_id=sede.id_sede) }}">Asigna algunos ahora</a>.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
