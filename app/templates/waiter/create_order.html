@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Pedido - Mesa {{ mesa.id_mesa }} - BARS</title>
+    <!-- Bootstrap CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Crear Nuevo Pedido para Mesa {{ mesa.id_mesa }} (Sede: {{ mesa.sede.nombre_sede }})</h1>
+        <a href="{{ url_for('waiter_orders.waiter_dashboard') }}" class="back-link">← Volver al Dashboard</a>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <p>Estás a punto de crear un nuevo pedido para la Mesa <strong>{{ mesa.id_mesa }}</strong> en <strong>{{ mesa.sede.nombre_sede }}</strong>.</p>
+        <p>Esta acción marcará la mesa como "ocupada".</p>
+
+        <form action="{{ url_for('waiter_orders.create_order', mesa_id=mesa.id_mesa) }}" method="POST">
+            <button type="submit" class="button btn-primary">Confirmar Creación de Pedido</button>
+            <a href="{{ url_for('waiter_orders.waiter_dashboard') }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+        
+        <hr>
+        <h4>Productos disponibles en el inventario de {{ mesa.sede.nombre_sede }}:</h4>
+        {% if productos_en_inventario %}
+            <ul>
+                {% for inv_item in productos_en_inventario %}
+                    <li>{{ inv_item.producto.nombre }} (Stock: {{ inv_item.cantidad }})</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No hay productos disponibles en el inventario de esta sede.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,8 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from app.models.user import User, Role
+from app.models.branch import Sede # NUEVO: Importar el modelo Sede
 from app import db
 from werkzeug.security import generate_password_hash # Importa esto para hashear contraseñas
+
 
 auth_bp = Blueprint('auth', __name__, template_folder='../templates')
 
@@ -15,7 +17,7 @@ def login():
         elif current_user.role.nombre_rol == 'Cajero':
             return redirect(url_for('auth.cashier_dashboard'))
         elif current_user.role.nombre_rol == 'Mesero':
-            return redirect(url_for('auth.waiter_dashboard'))
+            return redirect(url_for('waiter_orders.waiter_dashboard'))
         return redirect(url_for('auth.dashboard'))
 
     # Esta línea debe estar disponible en ambos caminos (GET y POST con error)
@@ -37,7 +39,7 @@ def login():
             elif user.role.nombre_rol == 'Cajero':
                 return redirect(url_for('auth.cashier_dashboard'))
             elif user.role.nombre_rol == 'Mesero':
-                return redirect(url_for('auth.waiter_dashboard'))
+                return redirect(url_for('waiter_orders.waiter_dashboard'))
             return redirect(url_for('auth.dashboard'))
         else:
             flash('Datos incorrectos. Por favor, verifica tu usuario, contraseña y rol.', 'danger')
@@ -81,14 +83,6 @@ def cashier_dashboard():
         return redirect(url_for('auth.cashier_dashboard'))
     return render_template('cashier/cashier_dashboard.html', user=current_user) # Renderiza una plantilla para el cajero dashboard
 
-@auth_bp.route('/waiter_dashboard')
-@login_required
-def waiter_dashboard():
-    if current_user.role.nombre_rol != 'Mesero':
-        flash('Acceso denegado. Solo meseros pueden acceder.', 'danger')
-        return redirect(url_for('auth.waiter_dashboard'))
-    return render_template('waiter/waiter_dashboard.html', user=current_user) # Renderiza una plantilla para el mesero dashboard
-
 # --- Gestión de Usuarios ---
 @auth_bp.route('/admin/users')
 @login_required
@@ -108,33 +102,47 @@ def create_user():
         return redirect(url_for('auth.dashboard'))
 
     roles = Role.query.all()
+    sedes = Sede.query.all() # NUEVO: Obtener todas las sedes
+    
     if request.method == 'POST':
         nombre_usuario = request.form['nombre_usuario']
         nombre_completo = request.form['nombre_completo']
         contrasena = request.form['contrasena']
         confirmar_contrasena = request.form['confirmar_contrasena']
         id_rol_seleccionado = int(request.form['id_rol'])
+        
+        # NUEVO: Obtener el id_sede, puede ser None si no se seleccionó o si el rol no lo requiere
+        id_sede_seleccionada = request.form.get('id_sede')
+        if id_sede_seleccionada:
+            id_sede_seleccionada = int(id_sede_seleccionada)
+        else:
+            id_sede_seleccionada = None # Asegurar que sea None si está vacío
 
         # Validaciones
+        # Se necesita la sede para Meseros (id_rol=3) y Cajeros (id_rol=2)
+        if (id_rol_seleccionado == 2 or id_rol_seleccionado == 3) and not id_sede_seleccionada:
+            flash('La sede es obligatoria para usuarios con rol de Mesero o Cajero.', 'danger')
+            return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=None, is_edit=False, selected_role=id_rol_seleccionado, selected_sede=id_sede_seleccionada)
+
+
         if not all([nombre_usuario, nombre_completo, contrasena, confirmar_contrasena]):
             flash('Todos los campos son obligatorios.', 'danger')
-            return render_template('admin/user_form.html', roles=roles, user=None, is_edit=False, selected_role=id_rol_seleccionado)
+            return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=None, is_edit=False, selected_role=id_rol_seleccionado, selected_sede=id_sede_seleccionada)
 
         if contrasena != confirmar_contrasena:
             flash('Las contraseñas no coinciden.', 'danger')
-            return render_template('admin/user_form.html', roles=roles, user=None, is_edit=False, selected_role=id_rol_seleccionado)
+            return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=None, is_edit=False, selected_role=id_rol_seleccionado, selected_sede=id_sede_seleccionada)
 
         if User.query.filter_by(nombre_usuario=nombre_usuario).first():
             flash('El nombre de usuario ya existe.', 'danger')
-            return render_template('admin/user_form.html', roles=roles, user=None, is_edit=False, selected_role=id_rol_seleccionado)
-
-        # --- REGLA DE NEGOCIO ELIMINADA: Un solo administrador ---
+            return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=None, is_edit=False, selected_role=id_rol_seleccionado, selected_sede=id_sede_seleccionada)
 
         try:
             new_user = User(
                 nombre_usuario=nombre_usuario,
                 nombre_completo=nombre_completo,
-                id_rol=id_rol_seleccionado
+                id_rol=id_rol_seleccionado,
+                id_sede=id_sede_seleccionada # NUEVO: Guardar la sede
             )
             new_user.set_password(contrasena)
             db.session.add(new_user)
@@ -145,7 +153,7 @@ def create_user():
             db.session.rollback()
             flash(f'Error al crear usuario: {e}', 'danger')
 
-    return render_template('admin/user_form.html', roles=roles, user=None, is_edit=False)
+    return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=None, is_edit=False) # NUEVO: Pasar sedes
 
 @auth_bp.route('/admin/users/edit/<int:user_id>', methods=['GET', 'POST'])
 @login_required
@@ -156,6 +164,7 @@ def edit_user(user_id):
 
     user = User.query.get_or_404(user_id)
     roles = Role.query.all()
+    sedes = Sede.query.all() # NUEVO: Obtener todas las sedes
 
     if request.method == 'POST':
         new_nombre_usuario = request.form['nombre_usuario']
@@ -163,31 +172,42 @@ def edit_user(user_id):
         new_id_rol_seleccionado = int(request.form['id_rol'])
         contrasena = request.form['contrasena']
         confirmar_contrasena = request.form['confirmar_contrasena']
+        
+        # NUEVO: Obtener el id_sede del formulario
+        new_id_sede_seleccionada = request.form.get('id_sede')
+        if new_id_sede_seleccionada:
+            new_id_sede_seleccionada = int(new_id_sede_seleccionada)
+        else:
+            new_id_sede_seleccionada = None # Asegurar que sea None si está vacío
 
         # Validaciones
+        # Se necesita la sede para Meseros (id_rol=3) y Cajeros (id_rol=2)
+        if (new_id_rol_seleccionado == 2 or new_id_rol_seleccionado == 3) and not new_id_sede_seleccionada:
+            flash('La sede es obligatoria para usuarios con rol de Mesero o Cajero.', 'danger')
+            return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=user, is_edit=True, selected_role=new_id_rol_seleccionado, selected_sede=new_id_sede_seleccionada)
+
+
         if not all([new_nombre_usuario, new_nombre_completo, new_id_rol_seleccionado]):
             flash('Todos los campos son obligatorios.', 'danger')
-            return render_template('admin/user_form.html', roles=roles, user=user, is_edit=True, selected_role=new_id_rol_seleccionado)
+            return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=user, is_edit=True, selected_role=new_id_rol_seleccionado, selected_sede=new_id_sede_seleccionada)
 
         if contrasena and contrasena != confirmar_contrasena:
             flash('Las contraseñas no coinciden.', 'danger')
-            return render_template('admin/user_form.html', roles=roles, user=user, is_edit=True, selected_role=new_id_rol_seleccionado)
+            return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=user, is_edit=True, selected_role=new_id_rol_seleccionado, selected_sede=new_id_sede_seleccionada)
 
-        # Verificar si el nombre de usuario ya existe para otro usuario
         existing_user_with_name = User.query.filter(
             User.nombre_usuario == new_nombre_usuario,
             User.id_usuario != user_id
         ).first()
         if existing_user_with_name:
             flash('El nombre de usuario ya existe para otro usuario.', 'danger')
-            return render_template('admin/user_form.html', roles=roles, user=user, is_edit=True, selected_role=new_id_rol_seleccionado)
-
-        # --- REGLA DE NEGOCIO ELIMINADA: Un solo administrador (durante la edición) ---
+            return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=user, is_edit=True, selected_role=new_id_rol_seleccionado, selected_sede=new_id_sede_seleccionada)
 
         try:
             user.nombre_usuario = new_nombre_usuario
             user.nombre_completo = new_nombre_completo
             user.id_rol = new_id_rol_seleccionado
+            user.id_sede = new_id_sede_seleccionada # NUEVO: Guardar la sede
 
             if contrasena:
                 user.set_password(contrasena)
@@ -199,8 +219,7 @@ def edit_user(user_id):
             db.session.rollback()
             flash(f'Error al actualizar usuario: {e}', 'danger')
 
-    return render_template('admin/user_form.html', roles=roles, user=user, is_edit=True, selected_role=user.id_rol)
-
+    return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=user, is_edit=True, selected_role=user.id_rol, selected_sede=user.id_sede) # NUEVO: Pasar sedes y selected_sede
 
 @auth_bp.route('/admin/users/delete/<int:user_id>', methods=['POST'])
 @login_required
