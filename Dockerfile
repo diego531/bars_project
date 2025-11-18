@@ -1,5 +1,5 @@
 # Usa una imagen base de Python
-FROM python:3.9-slim-buster
+FROM python:3.10-slim-bookworm
 
 # --- instalar git dentro del contenedor ---
 RUN apt-get update && apt-get install -y git && apt-get clean
