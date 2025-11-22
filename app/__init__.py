@@ -37,11 +37,13 @@ def create_app():
     from app.routes.admin_products import admin_products_bp
     from app.routes.admin_inventory import admin_inventory_bp # NUEVO: Importar la blueprint de inventario
     from app.routes.waiter_orders import waiter_orders_bp # NUEVO: Importar la blueprint de pedidos de meseros
+    from app.routes.cashier_routes import cashier_bp # NUEVO: Importar el blueprint del cajero
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(admin_branches_bp, url_prefix='/admin/branches') # NUEVO: Registrar la blueprint con su propio prefijo
     app.register_blueprint(admin_products_bp, url_prefix='/admin') # NUEVO: Registrar la nueva Blueprint con un prefijo /admin
     app.register_blueprint(admin_inventory_bp, url_prefix='/admin/inventory') # NUEVO: Registrar la blueprint de inventario
     app.register_blueprint(waiter_orders_bp, url_prefix='/waiter/orders') # NUEVO: Registrar la blueprint de meseros
+    app.register_blueprint(cashier_bp, url_prefix='/cashier') # NUEVO: Registrar el blueprint del cajero
     
 
     # Ruta por defecto para redirigir al login
@@ -57,6 +59,7 @@ def create_app():
         from app.models.product import CategoriaProducto, Producto
         from app.models.inventory import Inventario # NUEVO: Importar el modelo de Inventario
         from app.models.order import Pedido, DetallePedido # NUEVO: Importar los modelos de Pedido y DetallePedido
+        from app.models.payment import Pago # NUEVO: Importar el modelo Pago
 
         db.create_all() # Crea las tablas si no existen
 

@@ -161,6 +161,30 @@ CREATE TABLE IF NOT EXISTS `bars_db`.`Detalle_Pedido` (
     REFERENCES `bars_db`.`Productos` (`id_producto`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
+
+-- -----------------------------------------------------
+-- Table `bars_db`.`Pagos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `bars_db`.`Pagos` (
+  `id_pago` INT NOT NULL AUTO_INCREMENT,
+  `monto_pago` DECIMAL(10,2) NOT NULL,
+  `metodo_pago` VARCHAR(45) NOT NULL,
+  `fecha_hora_pago` DATETIME NULL DEFAULT CURRENT_TIMESTAMP, -- Usar DATETIME en lugar de TIMESTAMP para mayor compatibilidad con SQLAlchemy y MySQL 8+
+  `id_pedido` INT NOT NULL,
+  `id_usuario_cajero` INT NOT NULL,
+  PRIMARY KEY (`id_pago`),
+  INDEX `fk_Pagos_Pedidos1_idx` (`id_pedido` ASC),
+  INDEX `fk_Pagos_Usuarios1_idx` (`id_usuario_cajero` ASC),
+  CONSTRAINT `fk_Pagos_Pedidos1`
+    FOREIGN KEY (`id_pedido`)
+    REFERENCES `bars_db`.`Pedidos` (`id_pedido`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Pagos_Usuarios1`
+    FOREIGN KEY (`id_usuario_cajero`)
+    REFERENCES `bars_db`.`Usuarios` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
     
 -- INSERTAR DATOS INICIALES (para pruebas)
 INSERT INTO Roles (nombre_rol) VALUES ('Administrador'), ('Cajero'), ('Mesero');

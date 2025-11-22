@@ -15,7 +15,7 @@ def login():
         if current_user.role.nombre_rol == 'Administrador':
             return redirect(url_for('auth.admin_dashboard'))
         elif current_user.role.nombre_rol == 'Cajero':
-            return redirect(url_for('auth.cashier_dashboard'))
+            return redirect(url_for('cashier.cashier_dashboard'))
         elif current_user.role.nombre_rol == 'Mesero':
             return redirect(url_for('waiter_orders.waiter_dashboard'))
         return redirect(url_for('auth.dashboard'))
@@ -37,7 +37,7 @@ def login():
             if user.role.nombre_rol == 'Administrador':
                 return redirect(url_for('auth.admin_dashboard'))
             elif user.role.nombre_rol == 'Cajero':
-                return redirect(url_for('auth.cashier_dashboard'))
+                return redirect(url_for('cashier.cashier_dashboard'))
             elif user.role.nombre_rol == 'Mesero':
                 return redirect(url_for('waiter_orders.waiter_dashboard'))
             return redirect(url_for('auth.dashboard'))
