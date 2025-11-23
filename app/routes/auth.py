@@ -247,8 +247,51 @@ def delete_user(user_id):
 
     return redirect(url_for('auth.manage_users'))
 
-@auth_bp.route('/forgot_password')
-def forgot_password():
-    # Por ahora, simplemente redirigimos a una página informativa o un placeholder.
-    flash('Funcionalidad de recuperación de contraseña en desarrollo. Por favor, contacta al soporte técnico.', 'info')
-    return render_template('auth/forgot_password.html') 
+@auth_bp.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    # Helper para obtener la URL del dashboard del rol actual
+    def get_user_dashboard_url():
+        if current_user.role.nombre_rol == 'Administrador':
+            return url_for('auth.admin_dashboard')
+        elif current_user.role.nombre_rol == 'Cajero':
+            return url_for('cashier.cashier_dashboard')
+        elif current_user.role.nombre_rol == 'Mesero':
+            return url_for('waiter_orders.waiter_dashboard')
+        return url_for('auth.dashboard') # Fallback por si acaso
+
+    if request.method == 'POST':
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        confirm_new_password = request.form.get('confirm_new_password')
+
+        if not old_password or not new_password or not confirm_new_password:
+            flash('Por favor, completa todos los campos.', 'danger')
+            return redirect(get_user_dashboard_url()) # Redirige al dashboard específico
+            # O podrías hacer: return render_template('change_password.html', dashboard_url=get_user_dashboard_url())
+            # Pero un redirect es más simple aquí para errores de formulario
+
+        if not current_user.check_password(old_password):
+            flash('La contraseña actual es incorrecta.', 'danger')
+            return redirect(get_user_dashboard_url()) # Redirige al dashboard específico
+
+        if new_password != confirm_new_password:
+            flash('La nueva contraseña y la confirmación no coinciden.', 'danger')
+            return redirect(get_user_dashboard_url()) # Redirige al dashboard específico
+
+        if len(new_password) < 6: # Ejemplo de validación de longitud mínima
+            flash('La nueva contraseña debe tener al menos 6 caracteres.', 'danger')
+            return redirect(get_user_dashboard_url()) # Redirige al dashboard específico
+
+        current_user.set_password(new_password)
+        try:
+            db.session.commit()
+            flash('Tu contraseña ha sido cambiada exitosamente.', 'success')
+            return redirect(get_user_dashboard_url()) # Redirige al dashboard específico
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al cambiar la contraseña: {e}', 'danger')
+            return redirect(get_user_dashboard_url()) # Redirige al dashboard específico
+            
+    # Para la solicitud GET, pasamos la URL del dashboard correcto a la plantilla
+    return render_template('change_password.html', dashboard_url=get_user_dashboard_url())

@@ -35,7 +35,10 @@
         {% else %}
             <p>No tienes una sede asignada. Contacta al administrador.</p>
         {% endif %}
-        <p><a href="{{ url_for('auth.logout') }}" class="btn btn-secondary">Cerrar Sesión</a></p>
+        <p>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary">Cerrar Sesión</a>
+            <a href="{{ url_for('auth.change_password') }}" class="btn btn-info">Cambiar Contraseña</a>
+        </p>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
