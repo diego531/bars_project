@@ -71,17 +71,39 @@ def create_app():
             db.session.add(Role(nombre_rol='Cajero'))
             db.session.add(Role(nombre_rol='Mesero'))
             db.session.commit()
-
-        # Asegúrate de que un admin exista (con contraseña hasheada)
+# Buscar si el usuario admin ya existe
+        admin_user = User.query.filter_by(nombre_usuario='admin').first()
         admin_role = Role.query.filter_by(nombre_rol='Administrador').first()
-        if admin_role and not User.query.filter_by(nombre_usuario='admin').first():
-            from werkzeug.security import generate_password_hash
-            hashed_password = generate_password_hash('admin123', method='pbkdf2:sha256')
-            admin_user = User(nombre_usuario='admin', contrasena=hashed_password, nombre_completo='Admin BARS', id_rol=admin_role.id_rol, id_sede=None)
-            db.session.add(admin_user)
-            db.session.commit()
 
+        # Datos correctos de seguridad
+        pregunta_correcta = '¿Cual es el nombre del proyecto?'
+        respuesta_correcta = 'bars'  # La respuesta será "bars"
+
+        if admin_role:
+            if not admin_user:
+                # CASO 1: El admin no existe, lo creamos desde cero
+                print(">>> Creando usuario Admin por primera vez...")
+                new_admin = User(
+                    nombre_usuario='admin',
+                    nombre_completo='Administrador Principal',
+                    id_rol=admin_role.id_rol,
+                    id_sede=None,
+                    pregunta_seguridad=pregunta_correcta
+                )
+                new_admin.set_password('admin123')
+                new_admin.set_security_answer(respuesta_correcta) # Python genera el hash aquí
+                db.session.add(new_admin)
+            else:
+                # CASO 2: El admin YA existe (tu caso), corregimos sus datos
+                print(">>> Corrigiendo datos de seguridad del Admin existente...")
+                admin_user.pregunta_seguridad = pregunta_correcta # Arregla el "¿"
+                admin_user.set_security_answer(respuesta_correcta) # Regenera el hash válido
+                db.session.add(admin_user)
+            
+            db.session.commit()
+            
     return app
+
 
 from app.models.user import User
 

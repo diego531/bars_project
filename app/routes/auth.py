@@ -295,3 +295,68 @@ def change_password():
             
     # Para la solicitud GET, pasamos la URL del dashboard correcto a la plantilla
     return render_template('change_password.html', dashboard_url=get_user_dashboard_url())
+
+@auth_bp.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if current_user.is_authenticated:
+        return redirect(url_for('auth.dashboard'))
+
+    if request.method == 'POST':
+        username = request.form.get('username')
+        user = User.query.filter_by(nombre_usuario=username).first()
+
+        # VALIDACIÓN 1: Usuario existe
+        if not user:
+            flash('El usuario no existe.', 'danger')
+            return render_template('forgot_password.html')
+
+        # VALIDACIÓN 2: Es Administrador
+        if user.role.nombre_rol != 'Administrador':
+            flash('Esta función solo está habilitada para Administradores. Contacta a soporte.', 'warning')
+            return render_template('forgot_password.html')
+
+        # VALIDACIÓN 3: Tiene pregunta de seguridad configurada
+        if not user.pregunta_seguridad or not user.respuesta_seguridad:
+            flash('Este administrador no tiene configurada una pregunta de seguridad. Contacta al desarrollador.', 'warning')
+            return render_template('forgot_password.html')
+
+        # Si pasa todo, vamos al paso 2 (enviamos el username oculto o en la URL)
+        return redirect(url_for('auth.reset_password_challenge', user_id=user.id_usuario))
+
+    return render_template('forgot_password.html')
+
+
+@auth_bp.route('/reset_password/<int:user_id>', methods=['GET', 'POST'])
+def reset_password_challenge(user_id):
+    if current_user.is_authenticated:
+        return redirect(url_for('auth.dashboard'))
+    
+    user = User.query.get_or_404(user_id)
+    
+    # Doble chequeo de seguridad
+    if user.role.nombre_rol != 'Administrador':
+        flash('Acceso no autorizado.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    if request.method == 'POST':
+        respuesta_dada = request.form.get('respuesta')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        # Validar respuesta de seguridad
+        if not user.check_security_answer(respuesta_dada):
+            flash('La respuesta a la pregunta de seguridad es incorrecta.', 'danger')
+            return render_template('reset_password.html', user=user)
+
+        if new_password != confirm_password:
+            flash('Las contraseñas no coinciden.', 'danger')
+            return render_template('reset_password.html', user=user)
+
+        # Cambiar contraseña
+        user.set_password(new_password)
+        db.session.commit()
+        
+        flash('¡Contraseña restablecida exitosamente! Ya puedes iniciar sesión.', 'success')
+        return redirect(url_for('auth.login'))
+
+    return render_template('reset_password.html', user=user)

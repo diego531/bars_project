@@ -314,3 +314,27 @@ select option {
 .text-white-50 {
     color: rgba(255, 255, 255, 0.7) !important;
 }
+
+/* =========================================
+   CORRECCIÓN INPUT PASSWORD (Ocultar ojo navegador)
+   ========================================= */
+
+/* Ocultar el ojo por defecto de Edge/Chrome */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
+
+/* Asegurar que el grupo de input se vea unido y transparente */
+.input-group-text {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid var(--glass-border);
+    color: #b0b0b0;
+    border-left: none; 
+    cursor: pointer;
+}
+
+/* El input password no debe tener borde derecho para unirse al ojo */
+.input-group > .form-control {
+    border-right: none;
+}

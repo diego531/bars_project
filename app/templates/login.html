@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,38 +10,44 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body> 
-    <div class="login-container"> 
+
+<body>
+    <div class="login-container">
         <div class="card login-card">
             <div class="card-body">
                 <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo BARS" class="login-logo">
                 <h2 class="card-title text-center mb-4">Iniciar Sesión</h2>
 
-               {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <!-- Se agregan las clases: alert-dismissible fade show -->
-                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'info' }} alert-dismissible fade show flash" role="alert">
-                                {{ message }}
-                                <!-- Botón "X" para cerrar (versión blanca para fondo oscuro) -->
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <!-- Se agregan las clases: alert-dismissible fade show -->
+                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'info' }} alert-dismissible fade show flash"
+                    role="alert">
+                    {{ message }}
+                    <!-- Botón "X" para cerrar (versión blanca para fondo oscuro) -->
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
                 {% endwith %}
 
                 <form method="POST" action="{{ url_for('auth.login') }}">
                     <div class="mb-3 text-start">
                         <label for="username" class="form-label">Usuario</label>
-                        <input type="text" class="form-control" id="username" name="username" value="{{ username|default('') }}" required placeholder="Usuario">
+                        <input type="text" class="form-control" id="username" name="username"
+                            value="{{ username|default('') }}" required placeholder="Usuario">
                     </div>
-                    
+
                     <!-- CAMPO PASSWORD CON OJO -->
                     <div class="mb-3 text-start">
                         <label for="password" class="form-label">Contraseña</label>
                         <div class="input-group">
-                            <input type="password" class="form-control" id="password" name="password" required placeholder="••••••">
-                            <span class="input-group-text toggle-password" onclick="togglePassword('password', 'icon-login')">
+                            <input type="password" class="form-control" id="password" name="password" required
+                                placeholder="••••••">
+                            <span class="input-group-text toggle-password"
+                                onclick="togglePassword('password', 'icon-login')">
                                 <i class="bi bi-eye-slash" id="icon-login"></i>
                             </span>
                         </div>
@@ -50,26 +57,31 @@
                         <label for="role" class="form-label">Rol</label>
                         <select class="form-select" id="role" name="role" required>
                             {% for role_obj in roles %}
-                                <option value="{{ role_obj.id_rol }}" {% if role_obj.id_rol == selected_role|default('') %}selected{% endif %}>
-                                    {{ role_obj.nombre_rol }}
-                                </option>
+                            <option value="{{ role_obj.id_rol }}" {% if role_obj.id_rol==selected_role|default('')
+                                %}selected{% endif %}>
+                                {{ role_obj.nombre_rol }}
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 mt-3">Ingresar</button>
+                    <div class="text-center mt-2">
+                        <a href="{{ url_for('auth.forgot_password') }}" class="small">¿Eres administrador y olvidaste tu
+                            contraseña?</a>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- SCRIPT PARA MOSTRAR/OCULTAR -->
     <script>
         function togglePassword(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
-            
+
             if (input.type === "password") {
                 input.type = "text";
                 icon.classList.remove("bi-eye-slash");
@@ -82,4 +94,5 @@
         }
     </script>
 </body>
+
 </html>
