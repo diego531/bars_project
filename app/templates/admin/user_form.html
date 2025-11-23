@@ -4,111 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ 'Crear Usuario' if not is_edit else 'Editar Usuario' }} - BARS</title>
-    <!-- Bootstrap CSS (CDN) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container my-4" style="max-width: 600px;"> 
-        <h1>{{ 'Crear Nuevo Usuario' if not is_edit else 'Editar Usuario: ' ~ user.nombre_usuario }}</h1>
-        <a href="{{ url_for('auth.admin_dashboard') }}" class="btn btn-outline-secondary mb-3">← Volver al Dashboard</a>
+    <div class="container d-flex justify-content-center"> 
+        <div class="glass-container p-4 rounded col-md-8 col-lg-6">
+            <h1>{{ 'Crear Nuevo Usuario' if not is_edit else 'Editar Usuario' }}</h1>
+            <a href="{{ url_for('auth.admin_dashboard') }}" class="back-link">← Volver al Dashboard</a>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'info' }} flash" role="alert">
-                        {{ message }}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('auth.create_user') if not is_edit else url_for('auth.edit_user', user_id=user.id_usuario) }}" method="POST">
+                <!-- Otros campos (Usuario, Nombre, etc...) igual que antes -->
+                <div class="mb-3">
+                    <label for="nombre_usuario" class="form-label">Nombre de Usuario:</label>
+                    <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario" value="{{ user.nombre_usuario if user else '' }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="nombre_completo" class="form-label">Nombre Completo:</label>
+                    <input type="text" class="form-control" id="nombre_completo" name="nombre_completo" value="{{ user.nombre_completo if user else '' }}" required>
+                </div>
+
+                <!-- CONTRASEÑA 1 -->
+                <div class="mb-3">
+                    <label for="contrasena" class="form-label">Contraseña {{ '(dejar vacío para no cambiar)' if is_edit else '' }}:</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="contrasena" name="contrasena" {{ 'required' if not is_edit }}>
+                        <span class="input-group-text toggle-password" onclick="togglePassword('contrasena', 'icon-pass1')">
+                            <i class="bi bi-eye-slash" id="icon-pass1"></i>
+                        </span>
                     </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+                </div>
 
-        <form action="{{ url_for('auth.create_user') if not is_edit else url_for('auth.edit_user', user_id=user.id_usuario) }}" method="POST">
-            <div class="mb-3">
-                <label for="nombre_usuario" class="form-label">Nombre de Usuario:</label>
-                <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario" value="{{ user.nombre_usuario if user else '' }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="nombre_completo" class="form-label">Nombre Completo:</label>
-                <input type="text" class="form-control" id="nombre_completo" name="nombre_completo" value="{{ user.nombre_completo if user else '' }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="contrasena" class="form-label">Contraseña {{ '(dejar vacío para no cambiar)' if is_edit else '' }}:</label>
-                <input type="password" class="form-control" id="contrasena" name="contrasena" {{ 'required' if not is_edit }}>
-            </div>
-            <div class="mb-3">
-                <label for="confirmar_contrasena" class="form-label">Confirmar Contraseña:</label>
-                <input type="password" class="form-control" id="confirmar_contrasena" name="confirmar_contrasena" {{ 'required' if not is_edit }}>
-            </div>
-            <div class="mb-3">
-                <label for="id_rol" class="form-label">Rol:</label>
-                <select class="form-select" id="id_rol" name="id_rol" required>
-                    {% for role in roles %}
-                        <option value="{{ role.id_rol }}"
-                            {% if user and user.id_rol == role.id_rol %}
-                                selected
-                            {% elif not user and selected_role|default('')|int == role.id_rol %}
-                                selected
-                            {% endif %}>
-                            {{ role.nombre_rol }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <!-- NUEVO: Campo para seleccionar la sede -->
-            <div class="mb-3" id="sede_selection_group" style="display: none;"> {# Inicialmente oculto #}
-                <label for="id_sede" class="form-label">Sede:</label>
-                <select class="form-select" id="id_sede" name="id_sede">
-                    <option value="">Selecciona una Sede (opcional)</option> {# Valor vacío para usuarios sin sede #}
-                    {% for sede in sedes %}
-                        <option value="{{ sede.id_sede }}"
-                            {% if user and user.id_sede == sede.id_sede %}
-                                selected
-                            {% elif not user and selected_sede|default('')|int == sede.id_sede %}
-                                selected
-                            {% endif %}>
-                            {{ sede.nombre_sede }}
-                        </option>
-                    {% endfor %}
-                </select>
-                <small class="form-text text-muted">La sede es requerida para Meseros y Cajeros.</small>
-            </div>
-            {# Fin del NUEVO campo de sede #}
+                <!-- CONTRASEÑA 2 (Confirmar) -->
+                <div class="mb-3">
+                    <label for="confirmar_contrasena" class="form-label">Confirmar Contraseña:</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="confirmar_contrasena" name="confirmar_contrasena" {{ 'required' if not is_edit }}>
+                        <span class="input-group-text toggle-password" onclick="togglePassword('confirmar_contrasena', 'icon-pass2')">
+                            <i class="bi bi-eye-slash" id="icon-pass2"></i>
+                        </span>
+                    </div>
+                </div>
 
-            <button type="submit" class="btn btn-primary me-2">{{ 'Crear Usuario' if not is_edit else 'Guardar Cambios' }}</button>
-            <a href="{{ url_for('auth.manage_users') }}" class="btn btn-secondary">Cancelar</a>
-        </form>
+                <!-- Selector de Rol y Sede (Mismo código de antes) -->
+                <div class="mb-3">
+                    <label for="id_rol" class="form-label">Rol:</label>
+                    <select class="form-select" id="id_rol" name="id_rol" required>
+                        {% for role in roles %}
+                            <option value="{{ role.id_rol }}" {% if user and user.id_rol == role.id_rol %}selected{% endif %}>{{ role.nombre_rol }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3" id="sede_selection_group" style="display: none;">
+                    <label for="id_sede" class="form-label">Sede:</label>
+                    <select class="form-select" id="id_sede" name="id_sede">
+                        <option value="">Selecciona una Sede</option>
+                        {% for sede in sedes %}
+                            <option value="{{ sede.id_sede }}" {% if user and user.id_sede == sede.id_sede %}selected{% endif %}>{{ sede.nombre_sede }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">{{ 'Crear Usuario' if not is_edit else 'Guardar Cambios' }}</button>
+                    <a href="{{ url_for('auth.manage_users') }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- Bootstrap JS (CDN) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigF/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-
-    <!-- Script para mostrar/ocultar el selector de sede basado en el rol -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- SCRIPT REUTILIZABLE -->
     <script>
+        // Función para mostrar/ocultar contraseña
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
+            } else {
+                input.type = "password";
+                icon.classList.remove("bi-eye");
+                icon.classList.add("bi-eye-slash");
+            }
+        }
+
+        // Lógica de Sede/Rol (Tu código original)
         document.addEventListener('DOMContentLoaded', function() {
             const roleSelect = document.getElementById('id_rol');
             const sedeSelectGroup = document.getElementById('sede_selection_group');
+            const sedeInput = document.getElementById('id_sede');
 
             function toggleSedeField() {
-                // Obtener el ID del rol seleccionado
                 const selectedRoleId = roleSelect.value;
-                // Asumiendo que 1=Administrador, 2=Cajero, 3=Mesero
-                // La sede es relevante para Cajero (2) y Mesero (3)
-                if (selectedRoleId == 2 || selectedRoleId == 3) {
+                // Ajusta los IDs de roles según tu BD (ej: 2=Cajero, 3=Mesero)
+                if (selectedRoleId == 2 || selectedRoleId == 3) { 
                     sedeSelectGroup.style.display = 'block';
-                    document.getElementById('id_sede').setAttribute('required', 'required');
+                    sedeInput.setAttribute('required', 'required');
                 } else {
                     sedeSelectGroup.style.display = 'none';
-                    document.getElementById('id_sede').removeAttribute('required');
-                    document.getElementById('id_sede').value = ''; // Limpiar selección si no es relevante
+                    sedeInput.removeAttribute('required');
                 }
             }
-
-            // Ejecutar al cargar la página para establecer el estado inicial
             toggleSedeField();
-
-            // Escuchar cambios en el selector de rol
             roleSelect.addEventListener('change', toggleSedeField);
         });
     </script>

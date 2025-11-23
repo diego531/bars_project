@@ -3,50 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asignar Producto a {{ sede.nombre_sede }} - BARS</title>
-    <!-- Bootstrap CSS (CDN) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <!-- CSS -->
+    <title>Asignar Producto - {{ sede.nombre_sede }} - BARS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Asignar Producto a Inventario de {{ sede.nombre_sede }}</h1>
-        <a href="{{ url_for('admin_inventory.manage_inventory', sede_id=sede.id_sede) }}" class="back-link">← Volver al Inventario de {{ sede.nombre_sede }}</a>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash {{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <form action="{{ url_for('admin_inventory.assign_product_to_branch', sede_id=sede.id_sede) }}" method="POST">
-            <div class="form-group">
-                <label for="id_producto">Producto:</label>
-                <select id="id_producto" name="id_producto" required>
-                    <option value="">Selecciona un producto</option>
-                    {% for prod in productos_disponibles %}
-                        <option value="{{ prod.id_producto }}">{{ prod.nombre }} ({{ prod.categoria.nombre if prod.categoria else 'Sin Categoría' }})</option>
+    <div class="container d-flex justify-content-center">
+        <div class="glass-container p-4 rounded col-md-8 col-lg-6">
+            <h2 class="mb-4">Asignar a <span class="text-primary">{{ sede.nombre_sede }}</span></h2>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
                     {% endfor %}
-                </select>
-                {% if not productos_disponibles %}
-                    <p class="text-muted mt-2">No hay productos disponibles para asignar a esta sede. Todos los productos ya están en el inventario o no hay productos creados.</p>
                 {% endif %}
-            </div>
-            <div class="form-group">
-                <label for="cantidad">Cantidad Inicial:</label>
-                <input type="number" id="cantidad" name="cantidad" min="0" value="0" required>
-                <small class="form-text text-muted">Establece 0 si el producto está inicialmente sin stock.</small>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="esta_bloqueado" name="esta_bloqueado">
-                <label class="form-check-label" for="esta_bloqueado">Bloquear producto inicialmente (cantidad se establecerá a 0)</label>
-            </div>
-            <button type="submit" class="button" {% if not productos_disponibles %}disabled{% endif %}>Asignar Producto</button>
-            <a href="{{ url_for('admin_inventory.manage_inventory', sede_id=sede.id_sede) }}" class="btn btn-secondary">Cancelar</a>
-        </form>
+            {% endwith %}
+
+            <form action="{{ url_for('admin_inventory.assign_product_to_branch', sede_id=sede.id_sede) }}" method="POST">
+                <div class="mb-3">
+                    <label for="id_producto" class="form-label">Producto:</label>
+                    <select class="form-select" id="id_producto" name="id_producto" required>
+                        <option value="">Selecciona un producto...</option>
+                        {% for prod in productos_disponibles %}
+                            <option value="{{ prod.id_producto }}">{{ prod.nombre }} ({{ prod.categoria.nombre if prod.categoria else 'Sin Cat.' }})</option>
+                        {% endfor %}
+                    </select>
+                    {% if not productos_disponibles %}
+                        <div class="form-text text-danger mt-2">No hay productos disponibles. Todos están asignados o no existen.</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="cantidad" class="form-label">Cantidad Inicial:</label>
+                    <input type="number" class="form-control" id="cantidad" name="cantidad" min="0" value="0" required>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="esta_bloqueado" name="esta_bloqueado">
+                    <label class="form-check-label text-white" for="esta_bloqueado">Bloquear producto inicialmente (cantidad será 0)</label>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary" {% if not productos_disponibles %}disabled{% endif %}>Asignar Producto</button>
+                    <a href="{{ url_for('admin_inventory.manage_inventory', sede_id=sede.id_sede) }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

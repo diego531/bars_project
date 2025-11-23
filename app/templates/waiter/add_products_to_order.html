@@ -3,45 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Añadir Productos a Pedido #{{ pedido.id_pedido }} - BARS</title>
-    <!-- Bootstrap CSS (CDN) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <!-- CSS -->
+    <title>Añadir Productos - Pedido #{{ pedido.id_pedido }} - BARS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Añadir Productos a Pedido #{{ pedido.id_pedido }} (Mesa: {{ pedido.mesa.id_mesa }})</h1>
-        <a href="{{ url_for('waiter_orders.view_order_details', pedido_id=pedido.id_pedido) }}" class="back-link">← Volver a Detalles del Pedido</a>
+    <div class="container d-flex justify-content-center mt-5">
+        <div class="glass-container p-4 rounded col-md-8 col-lg-6">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 mb-0">Añadir al Pedido #{{ pedido.id_pedido }}</h2>
+                <span class="badge bg-secondary">Mesa {{ pedido.mesa.id_mesa }}</span>
+            </div>
+            
+            <a href="{{ url_for('waiter_orders.view_order_details', pedido_id=pedido.id_pedido) }}" class="back-link">← Volver a Detalles</a>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash {{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <form action="{{ url_for('waiter_orders.add_products_to_order', pedido_id=pedido.id_pedido) }}" method="POST">
-            <div class="form-group">
-                <label for="id_producto">Producto:</label>
-                <select id="id_producto" name="id_producto" required>
-                    <option value="">Selecciona un producto</option>
-                    {% for prod in productos_para_seleccion %}
-                        <option value="{{ prod.id_producto }}">{{ prod.nombre }} (Precio: ${{ '%.2f' | format(prod.precio_venta) }})</option>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                        </div>
                     {% endfor %}
-                </select>
-                {% if not productos_para_seleccion %}
-                    <p class="text-muted mt-2">No hay productos disponibles en el inventario de la sede de esta mesa.</p>
                 {% endif %}
-            </div>
-            <div class="form-group">
-                <label for="cantidad">Cantidad:</label>
-                <input type="number" id="cantidad" name="cantidad" min="1" value="1" required>
-            </div>
-            <button type="submit" class="button btn-success" {% if not productos_para_seleccion %}disabled{% endif %}>Añadir Producto(s)</button>
-            <a href="{{ url_for('waiter_orders.view_order_details', pedido_id=pedido.id_pedido) }}" class="btn btn-secondary">Cancelar</a>
-        </form>
+            {% endwith %}
+
+            <form action="{{ url_for('waiter_orders.add_products_to_order', pedido_id=pedido.id_pedido) }}" method="POST" class="mt-3">
+                <div class="mb-3">
+                    <label for="id_producto" class="form-label">Seleccionar Producto:</label>
+                    <select id="id_producto" name="id_producto" class="form-select form-select-lg" required>
+                        <option value="">Buscar producto...</option>
+                        {% for prod in productos_para_seleccion %}
+                            <option value="{{ prod.id_producto }}">
+                                {{ prod.nombre }} - ${{ '%.0f' | format(prod.precio_venta) }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if not productos_para_seleccion %}
+                        <div class="form-text text-danger">No hay stock disponible en esta sede.</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label for="cantidad" class="form-label">Cantidad:</label>
+                    <div class="input-group input-group-lg">
+                        <button class="btn btn-outline-secondary" type="button" onclick="document.getElementById('cantidad').stepDown()">-</button>
+                        <input type="number" id="cantidad" name="cantidad" class="form-control text-center" min="1" value="1" required>
+                        <button class="btn btn-outline-secondary" type="button" onclick="document.getElementById('cantidad').stepUp()">+</button>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg" {% if not productos_para_seleccion %}disabled{% endif %}>
+                        + Agregar al Pedido
+                    </button>
+                    <a href="{{ url_for('waiter_orders.view_order_details', pedido_id=pedido.id_pedido) }}" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -4,117 +4,110 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Administrador - BARS</title>
-    <!-- Bootstrap CSS (CDN) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for('auth.admin_dashboard') }}">BARS Admin</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.manage_users') }}">Gestionar Usuarios</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_branches.manage_branches') }}">Gestionar Sedes</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_products.manage_categories') }}">Gestionar Categorías de Productos</a> {# NUEVO ENLACE #}
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_products.manage_products') }}">Gestionar Productos</a> {# NUEVO ENLACE #}
-                    </li>
-                    <!-- Añadir más enlaces de navegación aquí si es necesario -->
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <span class="nav-link">Bienvenido, {{ user.nombre_completo }}</span>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.logout') }}">Cerrar Sesión</a>
-                        <a href="{{ url_for('auth.change_password') }}" class="btn btn-info">Cambiar Contraseña</a>
+                <!-- Se eliminó el menú de navegación izquierdo (Usuarios, Sedes, etc.) -->
+                
+                <!-- Menú de Usuario alineado a la derecha con ms-auto -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><span class="nav-link">Hola, {{ user.nombre_completo }}</span></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Cuenta</a>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('auth.change_password') }}">Cambiar Contraseña</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">Cerrar Sesión</a></li>
+                        </ul>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4 mb-4">
-        <h1 class="mb-4">Dashboard de Administración</h1>
+    <div class="container mt-5">
+        <h1 class="mb-2 text-white">Panel de Control</h1>
+        <!-- CAMBIO: Usamos text-light en lugar de text-muted para mayor visibilidad -->
+        <p class="text-light mb-4" style="opacity: 0.8;">Bienvenido al sistema de gestión BARS.</p>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
-        <p class="lead">Desde aquí puedes gestionar todas las configuraciones del sistema BARS.</p>
-
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Gestión de Usuarios</h5>
-                        <p class="card-text">Crea, edita o elimina cuentas de meseros y cajeros.</p>
-                        <a href="{{ url_for('auth.manage_users') }}" class="btn btn-primary">Ir a Usuarios</a>
+        <div class="row g-4">
+            <!-- Tarjetas de Gestión -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Usuarios</h5>
+                        <!-- También ajusté este texto para que sea más legible -->
+                        <p class="card-text text-white-50">Administra meseros y cajeros.</p>
+                        <a href="{{ url_for('auth.manage_users') }}" class="btn btn-primary w-100">GESTIONAR</a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Gestión de Sedes</h5>
-                        <p class="card-text">Administra las diferentes ubicaciones y sus mesas asociadas.</p>
-                        <a href="{{ url_for('admin_branches.manage_branches') }}" class="btn btn-primary">Ir a Sedes</a>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Sedes</h5>
+                        <p class="card-text text-white-50">Control de ubicaciones y mesas.</p>
+                        <a href="{{ url_for('admin_branches.manage_branches') }}" class="btn btn-primary w-100">GESTIONAR</a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Gestionar Categorías de Productos</h5>
-                        <p class="card-text">Administra las diferentes categorias de productos.</p>
-                        <a href="{{ url_for('admin_products.manage_categories') }}" class="btn btn-primary">Ir a Categoria productos</a>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Categorías</h5>
+                        <p class="card-text text-white-50">Organiza tus tipos de productos.</p>
+                        <a href="{{ url_for('admin_products.manage_categories') }}" class="btn btn-primary w-100">GESTIONAR</a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Gestión de Productos</h5>
-                        <p class="card-text">Crea, edita o elimina los productos asociados a una categoria</p>
-                        <a href="{{ url_for('admin_products.manage_products') }}" class="btn btn-primary">Ir a Gestionar Productos</a>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Productos</h5>
+                        <p class="card-text text-white-50">Inventario global y precios.</p>
+                        <a href="{{ url_for('admin_products.manage_products') }}" class="btn btn-primary w-100">GESTIONAR</a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Generar Reportes de Ventas y Costos</h5>
-                        <p class="card-text">Analizar el rendimiento del negocio</p>
-                        <a href="{{ url_for('admin_reports.sales_reports_form') }}" class="btn btn-primary">Generar Reportes de Ventas y Costos</a>
+             <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Reportes</h5>
+                        <p class="card-text text-white-50">Análisis de ventas y costos.</p>
+                        <a href="{{ url_for('admin_reports.sales_reports_form') }}" class="btn btn-info w-100 text-white">VER REPORTES</a>
                     </div>
                 </div>
             </div>
-            <!-- Puedes añadir más tarjetas para otras funcionalidades -->
         </div>
     </div>
 
-    <footer class="footer mt-auto py-3 bg-dark">
+    <footer class="footer mt-auto">
         <div class="container text-center">
-            <span class="text-light">InnovaBar Solutions S.A.S.</span>
+            <span>&copy; 2025 InnovaBar Solutions S.A.S. - BARS v1.0</span>
         </div>
     </footer>
-
-    <!-- Incluir Bootstrap JS desde CDN (bundle incluye Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

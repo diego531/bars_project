@@ -1,117 +1,316 @@
+/* =========================================
+   BARS SYSTEM - MAIN STYLESHEET (Dark Glass)
+   ========================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+:root {
+    --bg-overlay: rgba(20, 20, 20, 0.85); /* Fondo oscuro general */
+    --glass-bg: rgba(35, 35, 35, 0.75);   /* Fondo de tarjetas/contenedores */
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --primary-color: #0d6efd;
+    --text-main: #f1f1f1;
+    --text-muted: rgba(211, 211, 211, 0.75);
+}
 
 
-/* Estilos Generales - APLICADO A TODA LA APLICACIÓN */
 body {
-    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    background-image: url('../img/Fondo.jpg'); /* Imagen de fondo */
+    /* Asegúrate de tener la imagen en la carpeta correcta */
+    background: url('../img/Fondo.jpg') no-repeat center center fixed;
     background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed; /* Para que el fondo sea fijo al hacer scroll */
-    color: #343a40;
-    margin: 0;
-    padding: 0;
-    display: flex; /* Para centrar el contenido fácilmente */
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
     flex-direction: column;
-    min-height: 100vh; /* Ocupa el 100% de la altura de la ventana */
 }
 
-/* Contenedores principales - Fondo semitransparente para legibilidad */
-.container-fluid, .container { /* Aplica el fondo a los contenedores principales de Bootstrap */
-    background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco semitransparente */
-    border-radius: .5rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    margin-top: 20px;
-    margin-bottom: 20px;
-    padding: 20px;
+/* Capa oscura sobre la imagen de fondo para mejorar lectura */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Oscurece la imagen de fondo */
+    z-index: -1;
 }
 
-/* Estilos específicos del login */
+/* =========================================
+   CONTENEDORES Y TARJETAS (Glassmorphism)
+   ========================================= */
+
+.container, .container-fluid {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    position: relative; /* Para z-index */
+}
+
+/* Clase maestra para el efecto vidrio */
+.glass-container, 
+.card, 
+.login-card,
+.navbar,
+.footer {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.card {
+    border-radius: 10px;
+    color: var(--text-main);
+}
+
+.card-title {
+    color: #fff;
+    font-weight: 600;
+}
+
+.card-text {
+    color: var(--text-muted);
+}
+
+/* =========================================
+   NAVBAR & FOOTER
+   ========================================= */
+
+.navbar {
+    background: rgba(20, 20, 20, 0.95) !important; /* Un poco más oscuro */
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.navbar-brand, .nav-link {
+    color: #e0e0e0 !important;
+    font-weight: 500;
+}
+
+.navbar-brand:hover, .nav-link:hover {
+    color: #fff !important;
+    text-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
+.footer {
+    margin-top: auto;
+    background: rgba(20, 20, 20, 0.95) !important;
+    padding: 1rem 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* =========================================
+   FORMULARIOS (Inputs oscuros)
+   ========================================= */
+
+.form-control, .form-select {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    color: #fff;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-color: var(--primary-color);
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Hack para que las opciones del select sean legibles en Chrome/Windows */
+select option {
+    background-color: #333; 
+    color: #fff;
+}
+
+.form-label {
+    color: #ddd;
+    font-weight: 500;
+}
+
+/* =========================================
+   CORRECCIÓN FINAL DE TABLAS (Dark Mode)
+   ========================================= */
+
+/* 1. Forzar color blanco en todo el texto de la tabla */
+.table, 
+.table tbody, 
+.table td, 
+.table tfoot, 
+.table th, 
+.table thead, 
+.table tr {
+    color: #e0e0e0 !important; /* Gris muy claro/Blanco */
+    background-color: transparent !important;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 2. Encabezados de tabla: Azul más brillante (Cyan/Azul claro) para contraste */
+.table thead th {
+    color: #6ea8fe !important; /* Azul claro legible sobre negro */
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+/* 3. Filas de la tabla (Cuerpo) */
+.table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background-color 0.3s;
+}
+
+/* 4. Efecto Hover: Que se ilumine ligeramente al pasar el mouse */
+.table-hover > tbody > tr:hover > * {
+    color: #ffffff !important; /* Blanco puro al hacer hover */
+    background-color: rgba(255, 255, 255, 0.1) !important; /* Fondo grisáceo claro */
+    box-shadow: inset 0 0 0 9999px rgba(255, 255, 255, 0.05); /* Truco para forzar el color de fondo */
+}
+
+/* 5. Corrección específica para celdas que puedan tener enlaces */
+.table td a {
+    color: #e4e7ea;
+    text-decoration: none;
+}
+.table td a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+/* 6. Mantener el estilo para filas bloqueadas (Rojo transparente) */
+.blocked {
+    background-color: rgba(220, 53, 69, 0.2) !important;
+}
+.blocked td {
+    color: #ffc9ce !important; /* Texto rojizo claro */
+}
+
+/* =========================================
+   BOTONES Y ENLACES
+   ========================================= */
+
+.back-link {
+    color: #ecf4ff;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 15px;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: #fff;
+}
+
+.button, .btn {
+    border-radius: 5px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+/* Botones específicos para acciones de tabla */
+.button.edit {
+    background-color: #ffc107;
+    color: #000;
+    text-decoration: none;
+    border: none;
+}
+.button.edit:hover { background-color: #e0a800; }
+
+.button.delete {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+}
+.button.delete:hover { background-color: #bb2d3b; }
+
+/* =========================================
+   ESPECÍFICO: LOGIN
+   ========================================= */
 .login-container {
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 15px; /* Pequeño padding para móviles */
+    align-items: center; /* Centra verticalmente */
+    min-height: 100vh;   /* IMPORTANTE: Usa el 100% de la altura de la ventana */
+    padding: 1rem;
+    /* Si aún lo sientes muy arriba, puedes descomentar la siguiente línea: */
+    /* padding-top: 5rem; */ 
 }
 
 .login-card {
+    padding: 2.5rem;
     width: 100%;
-    max-width: 600px; /* Ancho máximo para el formulario de login */
-    padding: 2rem;
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.95); /* Más opaco para el login */
-    border-radius: .5rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    max-width: 450px;
 }
 
-/* Estilos para el logo del login */
 .login-logo {
-    max-width: 150px; /* Ajusta el tamaño del logo */
-    height: auto;
+    max-width: 140px;
     margin-bottom: 1.5rem;
     display: block;
     margin-left: auto;
     margin-right: auto;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
 }
 
-/* Mensajes Flash (Bootstrap alerts) */
+/* =========================================
+   ALERTAS
+   ========================================= */
 .alert {
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: .25rem;
-    border: 1px solid transparent;
-}
-.alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
-.alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
-.alert-info { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
-
-/* Otros estilos generales de Bootstrap (para sobreescribir si es necesario) */
-.form-control {
-    border-radius: 0.25rem;
-}
-.btn {
-    border-radius: 0.25rem;
-}
-
-/* Estilos de botones generales */
-.btn-primary { background-color: #007bff; border-color: #007bff; }
-.btn-primary:hover { background-color: #0056b3; border-color: #0056b3; }
-.btn-secondary { background-color: #6c757d; border-color: #6c757d; }
-.btn-secondary:hover { background-color: #5a6268; border-color: #5a6268; }
-.btn-warning { background-color: #ffc107; border-color: #ffc107; color: #333; }
-.btn-warning:hover { background-color: #e0a800; border-color: #e0a800; }
-.btn-danger { background-color: #dc3545; border-color: #dc3545; }
-.btn-danger:hover { background-color: #c82333; border-color: #c82333; }
-
-/* Para los enlaces "Volver" */
-.back-link {
-    display: inline-block;
-    margin-bottom: 1rem;
-    color: #007bff;
-    text-decoration: none;
-}
-.back-link:hover {
-    text-decoration: underline;
-}
-
-/* Navbar */
-.navbar {
-    background-color: rgba(52, 58, 64, 0.9); /* Un poco transparente para ver el fondo */
-    box-shadow: 0 2px 4px rgba(0,0,0,.1);
-}
-.navbar-brand, .nav-link {
-    color: #ffffff !important;
-}
-.navbar-brand:hover, .nav-link:hover {
-    color: #d4d4d4 !important;
-}
-
-/* Footer  */
-.footer {
-    padding: 15px 0;
-    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
     color: #fff;
-    background-color: rgba(52, 58, 64, 0.9);
-    margin-top: auto; /* Empuja el footer hacia abajo */
+}
+.alert-success { border-left: 4px solid #198754; color: #d1e7dd; }
+.alert-danger { border-left: 4px solid #dc3545; color: #f8d7da; }
+.alert-info { border-left: 4px solid #0dcaf0; color: #cff4fc; }
+
+/* =========================================
+   ESPECÍFICO: Optimizar (Result Card)
+   ========================================= */
+.result-card {
+    background-color: rgba(25, 135, 84, 0.15) !important;
+    border: 1px solid rgba(25, 135, 84, 0.3);
+    color: #fff;
+}
+.result-card h3 { color: #75b798 !important; }
+
+/* =========================================
+   INPUT GROUPS (OJO CONTRASEÑA)
+   ========================================= */
+
+/* Ajustar el contenedor del botón del ojo para que sea transparente */
+.input-group-text {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    color: #b0b0b0;
+    border-left: none; /* Quitar borde izquierdo para unirlo al input */
+}
+
+/* El input dentro del grupo debe tener borde derecho transparente si hay un botón */
+.input-group .form-control {
+    border-right: none; 
+}
+
+/* Efecto hover en el icono del ojo */
+.toggle-password {
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.toggle-password:hover {
+    color: var(--primary-color);
+}
+
+/* Corrección de visibilidad de texto */
+.text-muted, .card-text {
+    color: #dcdcdc !important; /* Gris mucho más claro */
+}
+
+/* Para textos que usen la clase específica de bootstrap text-white-50 */
+.text-white-50 {
+    color: rgba(255, 255, 255, 0.7) !important;
 }

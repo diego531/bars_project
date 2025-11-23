@@ -4,55 +4,81 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Pago - Pedido #{{ pedido.id_pedido }} - BARS</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Registrar Pago para Pedido #{{ pedido.id_pedido }}</h1>
-        <a href="{{ url_for('cashier.view_order_for_payment', mesa_id=mesa.id_mesa) }}" class="back-link">← Volver a Detalles del Pedido</a>
+    <div class="container d-flex justify-content-center mt-5">
+        <div class="glass-container p-4 rounded col-md-8 col-lg-6">
+            <h2 class="mb-4">Registrar Pago</h2>
+            <a href="{{ url_for('cashier.view_order_for_payment', mesa_id=mesa.id_mesa) }}" class="back-link">← Volver a Detalles</a>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
-        <div class="card mb-3">
-            <div class="card-header">
-                Resumen del Pedido
+            <div class="card mb-4" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">
+                <div class="card-header bg-primary text-white">
+                    Resumen del Pedido #{{ pedido.id_pedido }}
+                </div>
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><strong>Fecha:</strong></span>
+                        <!-- AQUI SE AGREGÓ LA FECHA -->
+                        <span>{{ pedido.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span><strong>Mesa:</strong></span>
+                        <span>{{ mesa.id_mesa }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span><strong>Sede:</strong></span>
+                        <span>{{ mesa.sede.nombre_sede }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span><strong>Mesero:</strong></span>
+                        <span>{{ pedido.mesero.nombre_completo }}</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h5 mb-0">Total a Pagar:</span>
+                        <span class="h3 mb-0 text-success">${{ '%.2f' | format(pedido.total_pedido) }}</span>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <p><strong>Mesa:</strong> {{ mesa.id_mesa }} (Sede: {{ mesa.sede.nombre_sede }})</p>
-                <p><strong>Mesero:</strong> {{ pedido.mesero.nombre_completo }}</p>
-                <p class="h4"><strong>Total a Pagar:</strong> ${{ '%.2f' | format(pedido.total_pedido) }}</p>
-            </div>
+
+            <form action="{{ url_for('cashier.register_payment', pedido_id=pedido.id_pedido) }}" method="POST">
+                <div class="mb-3">
+                    <label for="metodo_pago" class="form-label">Método de Pago:</label>
+                    <select id="metodo_pago" name="metodo_pago" class="form-select" required>
+                        <option value="">Selecciona un método</option>
+                        <option value="efectivo">Efectivo 💵</option>
+                        <option value="tarjeta">Tarjeta (Crédito/Débito) 💳</option>
+                        <option value="nequi">Nequi 📱</option>
+                        <option value="daviplata">Daviplata 📱</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="monto_recibido" class="form-label">Monto Recibido ($):</label>
+                    <input type="number" id="monto_recibido" name="monto_recibido" step="0.01" min="{{ pedido.total_pedido }}" value="{{ '%.2f' | format(pedido.total_pedido) }}" class="form-control form-control-lg" required>
+                    <div class="form-text text-light opacity-75">
+                        Ingresa el valor entregado por el cliente. Si es efectivo, el sistema calculará el cambio.
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">Confirmar Pago</button>
+                    <a href="{{ url_for('cashier.view_order_for_payment', mesa_id=mesa.id_mesa) }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
         </div>
-
-        <form action="{{ url_for('cashier.register_payment', pedido_id=pedido.id_pedido) }}" method="POST">
-            <div class="form-group mb-3">
-                <label for="metodo_pago" class="form-label">Método de Pago:</label>
-                <select id="metodo_pago" name="metodo_pago" class="form-select" required>
-                    <option value="">Selecciona un método</option>
-                    <option value="efectivo">Efectivo</option>
-                    <option value="tarjeta">Tarjeta de Crédito/Débito</option>
-                    <option value="nequi">Nequi</option>
-                    <option value="daviplata">Daviplata</option>
-                    <option value="otro">Otro</option>
-                </select>
-            </div>
-            <div class="form-group mb-3">
-                <label for="monto_recibido" class="form-label">Monto Recibido:</label>
-                <input type="number" id="monto_recibido" name="monto_recibido" step="0.01" min="{{ '%.2f' | format(pedido.total_pedido) }}" value="{{ '%.2f' | format(pedido.total_pedido) }}" class="form-control" required>
-                <small class="form-text text-muted">Ingresa el monto que el cliente entrega. Debe ser igual o mayor al total.</small>
-            </div>
-            <button type="submit" class="button btn-primary">Confirmar Pago</button>
-            <a href="{{ url_for('cashier.view_order_for_payment', mesa_id=mesa.id_mesa) }}" class="btn btn-secondary">Cancelar</a>
-        </form>
     </div>
-    <!-- Bootstrap JS y Popper.js (CDN) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigF/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

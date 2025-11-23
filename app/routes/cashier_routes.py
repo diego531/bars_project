@@ -7,7 +7,7 @@ from app.models.order import Pedido, DetallePedido # Necesitamos Pedido y Detall
 from app.models.branch import Mesa # Necesitamos Mesa
 from app.models.payment import Pago # Nuevo: El modelo Pago
 from app.models.user import User # Para current_user.id_usuario y roles
-from app.utils.algorithms import calcular_devuelta_optima # Importas tu algoritmo
+from app.utils.algorithms import calcular_devuelta_optima # Voraz
 
 
 cashier_bp = Blueprint('cashier', __name__, template_folder='../templates/cashier')
@@ -123,7 +123,7 @@ def register_payment(pedido_id):
             
             # Calcular el cambio (opcional, para mostrar al cajero)
             cambio = monto_recibido - float(pedido.total_pedido)
-        
+#--------------------------------------------------------------------------------------------------------------------------        
            # 3. APLICACIÓN DEL ALGORITMO VORAZ
             desglose_devuelta = {} # Inicia vacío
 

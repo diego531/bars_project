@@ -1,163 +1,168 @@
-<!-- app/templates/waiter/waiter_dashboard.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Mesero - BARS</title>
-    <!-- Bootstrap CSS (CDN) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
+        /* Estilos específicos para las tarjetas de mesas */
         .mesa-card {
-            border: 1px solid #ccc;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
             padding: 15px;
             margin: 10px;
-            border-radius: 8px;
+            border-radius: 12px;
             text-align: center;
-            width: 180px;
+            width: 160px;
             display: inline-block;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-            background-color: #f8f9fa; /* Color de fondo claro */
+            transition: transform 0.2s;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .mesa-card:hover {
+            transform: translateY(-5px);
         }
         .mesa-card.libre {
-            background-color: #d4edda; /* Verde claro */
-            border-color: #28a745; /* Borde verde */
-            color: #155724; /* Texto verde oscuro */
+            border-bottom: 4px solid #198754; /* Verde */
+            box-shadow: 0 4px 10px rgba(25, 135, 84, 0.2);
         }
-        .mesa-card.ocupada {
-            background-color: #f8d7da; /* Rojo claro */
-            border-color: #dc3545; /* Borde rojo */
-            color: #721c24; /* Texto rojo oscuro */
-        }
-        .mesa-card h3 {
-            margin-top: 0;
-            color: inherit; /* Hereda el color del padre */
-        }
+        .mesa-card.libre h3 { color: #2ecc71; }
+
+        /* Estilos para tarjetas de pedidos activos */
         .pedido-card {
-            border: 1px solid #cce5ff; /* Azul claro */
-            background-color: #e0f0ff; /* Azul muy claro */
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            border-radius: 10px;
+            transition: background 0.3s;
+            color: #e0e0e0;
         }
+        .pedido-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .pedido-card h5 { color: #6ea8fe; margin-bottom: 0.5rem; }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for('waiter_orders.waiter_dashboard') }}">BARS Mesero</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('waiter_orders.waiter_dashboard') }}">Pedidos</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <span class="nav-link">Bienvenido, {{ user.nombre_completo }}</span>
-                    </li>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><span class="nav-link">Hola, {{ user.nombre_completo }}</span></li>
                     {% if user.sede %}
-                    <li class="nav-item">
-                        <span class="nav-link">Sede: {{ user.sede.nombre_sede }}</span>
-                    </li>
+                        <li class="nav-item"><span class="badge bg-primary mt-2 ms-2">{{ user.sede.nombre_sede }}</span></li>
                     {% endif %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.logout') }}">Cerrar Sesión</a>
-                        <a href="{{ url_for('auth.change_password') }}" class="btn btn-info">Cambiar Contraseña</a>
+                    <li class="nav-item dropdown ms-3">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Cuenta</a>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('auth.change_password') }}">Cambiar Contraseña</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">Cerrar Sesión</a></li>
+                        </ul>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4 mb-4">
-        <h1 class="mb-4">Dashboard del Mesero</h1>
+    <div class="container mt-4">
+        <h1 class="text-white mb-4">Panel de Mesero</h1>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'info' }}">{{ message }}</div>
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                    </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
         {% if not user.sede %}
-            <div class="alert alert-warning" role="alert">
-                ¡Atención! Tu usuario de mesero no tiene una sede asignada. Contacta al administrador para poder ver y gestionar mesas.
+            <div class="alert alert-warning">
+                ⚠️ No tienes sede asignada. Contacta al administrador.
             </div>
         {% endif %}
 
-        <div class="row">
-            <div class="col-md-12 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Mesas Disponibles para Nuevo Pedido (Sede: {{ user.sede.nombre_sede if user.sede else 'N/A' }})</h5>
-                        <p class="card-text">Selecciona una mesa libre para iniciar un nuevo pedido.</p>
-                        <div class="d-flex flex-wrap">
-                            {% if mesas_disponibles %}
-                                {% for mesa in mesas_disponibles %}
-                                    <div class="mesa-card libre">
-                                        <h3>Mesa {{ mesa.id_mesa }}</h3>
-                                        <p>Estado: Libre</p>
-                                        <a href="{{ url_for('waiter_orders.create_order', mesa_id=mesa.id_mesa) }}" class="btn btn-success btn-sm">Crear Pedido</a>
-                                    </div>
-                                {% endfor %}
-                            {% else %}
-                                <p class="ms-3">No hay mesas libres en esta sede para crear nuevos pedidos en este momento.</p>
-                            {% endif %}
-                        </div>
-                    </div>
+        <div class="row g-4">
+            <!-- Sección: Mis Pedidos Abiertos (Prioridad alta) -->
+            <div class="col-lg-7 order-lg-2">
+                <div class="glass-container p-3 rounded h-100">
+                    <h4 class="text-white mb-3 border-bottom border-secondary pb-2">
+                        <i class="bi bi-clipboard-data"></i> Mis Pedidos Activos
+                    </h4>
+                    {% if pedidos_abiertos %}
+                        {% for pedido in pedidos_abiertos %}
+                            <div class="pedido-card d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <div>
+                                    <h5>Mesa {{ pedido.mesa.id_mesa }} <small class="text-muted fs-6">#{{ pedido.id_pedido }}</small></h5>
+                                    <p class="mb-1 small">
+                                        Estado: 
+                                        <span class="badge {{ 'bg-warning text-dark' if pedido.estado == 'pendiente' else 'bg-info text-dark' }}">
+                                            {{ pedido.estado.capitalize() }}
+                                        </span>
+                                    </p>
+                                    <p class="mb-0 small fw-bold text-success">Total: ${{ '%.2f' | format(pedido.total_pedido) }}</p>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ url_for('waiter_orders.view_order_details', pedido_id=pedido.id_pedido) }}" class="btn btn-outline-light btn-sm">
+                                        Ver Detalles
+                                    </a>
+                                    {% if pedido.estado in ['pendiente', 'en_preparacion'] %}
+                                        <a href="{{ url_for('waiter_orders.add_products_to_order', pedido_id=pedido.id_pedido) }}" class="btn btn-primary btn-sm">
+                                            + Productos
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted fst-italic">No tienes pedidos abiertos en este momento.</p>
+                    {% endif %}
                 </div>
             </div>
 
-            <div class="col-md-12 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Mis Pedidos Abiertos</h5>
-                        <p class="card-text">Gestiona los pedidos que tienes actualmente en curso.</p>
-                        {% if pedidos_abiertos %}
-                            {% for pedido in pedidos_abiertos %}
-                                <div class="pedido-card d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h5>Pedido #{{ pedido.id_pedido }} - Mesa {{ pedido.mesa.id_mesa }}</h5>
-                                        <p class="mb-1">Estado: <span class="badge bg-info">{{ pedido.estado.capitalize() }}</span></p>
-                                        <p class="mb-1">Total: <strong>${{ '%.2f' | format(pedido.total_pedido) }}</strong></p>
-                                        <small class="text-muted">Fecha: {{ pedido.fecha_creacion | to_local_time }}</small>
-                                    </div>
-                                    <div>
-                                        <a href="{{ url_for('waiter_orders.view_order_details', pedido_id=pedido.id_pedido) }}" class="btn btn-info btn-sm me-2">Ver Detalles</a>
-                                        {% if pedido.estado in ['pendiente', 'en_preparacion'] %}
-                                            <a href="{{ url_for('waiter_orders.add_products_to_order', pedido_id=pedido.id_pedido) }}" class="btn btn-primary btn-sm">Añadir Productos</a>
-                                        {% endif %}
-                                    </div>
+            <!-- Sección: Mesas Libres (Para abrir nuevos) -->
+            <div class="col-lg-5 order-lg-1">
+                <div class="glass-container p-3 rounded h-100">
+                    <h4 class="text-white mb-3 border-bottom border-secondary pb-2">
+                        <i class="bi bi-grid"></i> Abrir Nuevo Pedido
+                    </h4>
+                    <p class="text-white-50 small">Selecciona una mesa libre para comenzar:</p>
+                    
+                    <div class="d-flex flex-wrap justify-content-center">
+                        {% if mesas_disponibles %}
+                            {% for mesa in mesas_disponibles %}
+                                <div class="mesa-card libre">
+                                    <h3 class="mb-2">Mesa {{ mesa.id_mesa }}</h3>
+                                    <span class="badge bg-success mb-3">Libre</span>
+                                    <a href="{{ url_for('waiter_orders.create_order', mesa_id=mesa.id_mesa) }}" class="btn btn-sm btn-outline-success w-100 stretched-link">
+                                        Ocupar
+                                    </a>
                                 </div>
                             {% endfor %}
                         {% else %}
-                            <p>No tienes pedidos abiertos en este momento.</p>
+                            <div class="alert alert-secondary w-100">No hay mesas libres en tu sede.</div>
                         {% endif %}
                     </div>
                 </div>
             </div>
-
-            {# Aquí podrías añadir más tarjetas si el mesero tuviera otras funcionalidades principales #}
-            {# Por ejemplo: Ver Historial de sus pedidos, Reportar Problemas de Inventario, etc. #}
-
         </div>
     </div>
 
-    <footer class="footer mt-auto py-3 bg-dark">
+    <footer class="footer mt-5 py-3">
         <div class="container text-center">
-            <span class="text-light">InnovaBar Solutions S.A.S.</span>
+            <span class="text-muted small">InnovaBar Solutions S.A.S.</span>
         </div>
     </footer>
-
-    <!-- Incluir Bootstrap JS desde CDN (bundle incluye Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

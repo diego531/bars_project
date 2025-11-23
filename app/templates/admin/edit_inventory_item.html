@@ -3,52 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Inventario de {{ producto.nombre }} en {{ sede.nombre_sede }} - BARS</title>
-    <!-- Bootstrap CSS (CDN) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <!-- CSS -->
+    <title>Editar Inventario - {{ producto.nombre }} - BARS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Editar Inventario de "{{ producto.nombre }}" en "{{ sede.nombre_sede }}"</h1>
-        <a href="{{ url_for('admin_inventory.manage_inventory', sede_id=sede.id_sede) }}" class="back-link">← Volver al Inventario de {{ sede.nombre_sede }}</a>
+    <div class="container d-flex justify-content-center">
+        <div class="glass-container p-4 rounded col-md-8 col-lg-6">
+            <h2 class="mb-2">Editar Inventario</h2>
+            <h4 class="text-primary mb-4">{{ producto.nombre }} en {{ sede.nombre_sede }}</h4>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash {{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
-        <form action="{{ url_for('admin_inventory.edit_inventory_item', item_id=inventory_item.id_inventario) }}" method="POST">
-            <div class="form-group">
-                <label for="cantidad">Cantidad:</label>
-                <input type="number" id="cantidad" name="cantidad" min="0" value="{{ inventory_item.cantidad }}" {% if inventory_item.esta_bloqueado %}disabled{% endif %} required>
-                <small class="form-text text-muted">Ajusta la cantidad disponible. Si el producto está bloqueado, esta cantidad se establecerá a 0.</small>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="esta_bloqueado" name="esta_bloqueado" {% if inventory_item.esta_bloqueado %}checked{% endif %}>
-                <label class="form-check-label" for="esta_bloqueado">Bloquear producto (establece la cantidad a 0)</label>
-            </div>
-            <button type="submit" class="button">Guardar Cambios</button>
-            <a href="{{ url_for('admin_inventory.manage_inventory', sede_id=sede.id_sede) }}" class="btn btn-secondary">Cancelar</a>
-        </form>
+            <form action="{{ url_for('admin_inventory.edit_inventory_item', item_id=inventory_item.id_inventario) }}" method="POST">
+                <div class="mb-3">
+                    <label for="cantidad" class="form-label">Cantidad Disponible:</label>
+                    <input type="number" class="form-control" id="cantidad" name="cantidad" min="0" value="{{ inventory_item.cantidad }}" {% if inventory_item.esta_bloqueado %}disabled{% endif %} required>
+                    <div class="form-text text-light">Si bloqueas el producto, la cantidad será 0.</div>
+                </div>
+
+                <div class="mb-3 form-check p-3 rounded" style="background: rgba(0,0,0,0.2);">
+                    <input type="checkbox" class="form-check-input" id="esta_bloqueado" name="esta_bloqueado" {% if inventory_item.esta_bloqueado %}checked{% endif %}>
+                    <label class="form-check-label text-white fw-bold" for="esta_bloqueado">Bloquear Producto</label>
+                    <div class="small text-muted">Impide que los meseros realicen pedidos de este ítem.</div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    <a href="{{ url_for('admin_inventory.manage_inventory', sede_id=sede.id_sede) }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // JavaScript para habilitar/deshabilitar la cantidad si el checkbox de bloqueo cambia
+        // Lógica para deshabilitar input si está bloqueado
         document.getElementById('esta_bloqueado').addEventListener('change', function() {
             const cantidadInput = document.getElementById('cantidad');
             if (this.checked) {
                 cantidadInput.disabled = true;
-                cantidadInput.value = 0; // Fuerza la cantidad a 0 si se bloquea
+                cantidadInput.value = 0; 
             } else {
                 cantidadInput.disabled = false;
             }
         });
-        // Asegurarse de que el estado inicial del input de cantidad sea correcto al cargar la página
+
+        // Estado inicial
         window.addEventListener('load', function() {
             const cantidadInput = document.getElementById('cantidad');
             const bloqueadoCheckbox = document.getElementById('esta_bloqueado');
@@ -58,4 +65,5 @@
             }
         });
     </script>
-<admin_inventory
+</body>
+</html>

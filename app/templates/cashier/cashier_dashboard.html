@@ -4,68 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard del Cajero - BARS</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
         .mesa-card {
-            border: 1px solid #ccc;
-            padding: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            padding: 20px;
             margin: 10px;
-            border-radius: 8px;
+            border-radius: 10px;
             text-align: center;
-            width: 180px;
+            width: 200px;
             display: inline-block;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
+        .mesa-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        /* Estados de la mesa - Colores oscuros neón */
         .mesa-card.ocupada {
-            background-color: #f8d7da;
-            border-color: #dc3545;
+            border-top: 4px solid #dc3545; /* Rojo */
+            background: linear-gradient(180deg, rgba(220, 53, 69, 0.15) 0%, rgba(0,0,0,0.4) 100%);
         }
         .mesa-card.libre {
-            background-color: #d4edda;
-            border-color: #28a745;
+            border-top: 4px solid #198754; /* Verde */
+            background: linear-gradient(180deg, rgba(25, 135, 84, 0.15) 0%, rgba(0,0,0,0.4) 100%);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Bienvenido, Cajero {{ current_user.nombre_completo }}!</h1>
-        {% if current_user.sede %}
-            <p>Asignado a: <strong>{{ current_user.sede.nombre_sede }}</strong></p>
-        {% else %}
-            <p>No tienes una sede asignada. Contacta al administrador.</p>
-        {% endif %}
-        <p>
-            <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary">Cerrar Sesión</a>
-            <a href="{{ url_for('auth.change_password') }}" class="btn btn-info">Cambiar Contraseña</a>
-        </p>
+    <div class="container glass-container p-4 rounded mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
+            <div>
+                <h1 class="h2 mb-0">Hola, {{ current_user.nombre_completo }}</h1>
+                <small class="text-light opacity-75">Rol: Cajero</small>
+            </div>
+            
+            <div class="text-end">
+                {% if current_user.sede %}
+                    <span class="badge bg-primary fs-6 mb-2">Sede: {{ current_user.sede.nombre_sede }}</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">Sin Sede Asignada</span>
+                {% endif %}
+                <div class="mt-2">
+                    <a href="{{ url_for('auth.change_password') }}" class="btn btn-sm btn-outline-info me-2">Contraseña</a>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-outline-danger">Salir</a>
+                </div>
+            </div>
+        </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                    </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
-        <hr>
-
-        <h2>Mesas Ocupadas con Pedidos Pendientes de Pago</h2>
-        <div class="d-flex flex-wrap">
+        <h3 class="mt-4 mb-3 text-white-50"><i class="bi bi-cash-coin"></i> Cobros Pendientes</h3>
+        
+        <div class="d-flex flex-wrap justify-content-start">
             {% if mesas_ocupadas %}
                 {% for mesa in mesas_ocupadas %}
                     <div class="mesa-card ocupada">
-                        <h3>Mesa {{ mesa.id_mesa }}</h3>
-                        <p>Sede: {{ mesa.sede.nombre_sede }}</p>
-                        <a href="{{ url_for('cashier.view_order_for_payment', mesa_id=mesa.id_mesa) }}" class="btn btn-primary btn-sm">Ver Pedido</a>
+                        <h2 class="mb-3">Mesa {{ mesa.id_mesa }}</h2>
+                        <p class="text-white-50 mb-3 small">{{ mesa.sede.nombre_sede }}</p>
+                        <a href="{{ url_for('cashier.view_order_for_payment', mesa_id=mesa.id_mesa) }}" class="btn btn-primary w-100">
+                            Ver Pedido
+                        </a>
                     </div>
                 {% endfor %}
             {% else %}
-                <p>No hay mesas ocupadas con pedidos pendientes en tu sede en este momento.</p>
+                <div class="alert alert-info w-100 text-center p-5 bg-transparent border-info text-info">
+                    <h4>No hay pedidos pendientes de cobro</h4>
+                    <p>Las mesas ocupadas aparecerán aquí cuando estén listas para pagar.</p>
+                </div>
             {% endif %}
         </div>
     </div>
-    <!-- Bootstrap JS y Popper.js (CDN) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigF/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -7,7 +7,7 @@ from app.models.product import Producto # Necesario para listar productos dispon
 from app.models.branch import Sede # Necesario para la sede específica
 from app import db
 from sqlalchemy import exc
-from app.utils.algorithms import ordenar_inventario_por_stock, calcular_valor_inventario_recursivo # <--- IMPORTAR
+from app.utils.algorithms import ordenar_inventario_por_stock, calcular_valor_inventario_recursivo #Recursivo
 from app.utils.algorithms import recomendar_reabastecimiento # Mochila
 
 admin_inventory_bp = Blueprint('admin_inventory', __name__, template_folder='../templates/admin')
@@ -21,7 +21,7 @@ def require_admin_for_inventory():
         return redirect(url_for('auth.dashboard'))
 
 # --- RUTAS DE GESTIÓN DE INVENTARIO POR SEDE ---
-
+#------------------------------------------------------------------------------------
 @admin_inventory_bp.route('/optimize/<int:sede_id>', methods=['GET', 'POST'])
 @login_required
 def optimize_restock(sede_id):
@@ -53,6 +53,7 @@ def optimize_restock(sede_id):
         
         # EJECUTAR ALGORITMO DE LA MOCHILA
         resultado_items, ganancia_maxima = recomendar_reabastecimiento(presupuesto, lista_candidatos)
+#-------------------------------------------------------------------------------------------------------
 
     return render_template('optimize_restock.html', sede=sede, items=resultado_items, ganancia=ganancia_maxima, presupuesto=presupuesto)
 
@@ -62,7 +63,7 @@ def manage_inventory(sede_id):
     
     # Traemos TODO sin ordenar por SQL
     inventario_query = Inventario.query.filter_by(id_sede=sede_id).all()
-    
+#----------------------------------------------------------------------------------------------------
     # 1. ALGORITMO ITERATIVO: Bubble Sort
     # Ordenamos para ver primero los productos con menos stock
     inventario_ordenado = ordenar_inventario_por_stock(inventario_query)
@@ -72,7 +73,7 @@ def manage_inventory(sede_id):
     
     # Pasamos 'valor_total_sede' al template para mostrarlo arriba
     return render_template('manage_inventory.html', sede=sede, inventario=inventario_ordenado, valor_total=valor_total_sede)
-
+#----------------------------------------------------------------------------------------------------
 
 @admin_inventory_bp.route('/assign/<int:sede_id>', methods=['GET', 'POST'])
 def assign_product_to_branch(sede_id):

@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - BARS</title>
-    <!-- Bootstrap CSS (CDN) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- IMPORTANTE: CDN de Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body> 
@@ -16,31 +16,42 @@
                 <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo BARS" class="login-logo">
                 <h2 class="card-title text-center mb-4">Iniciar Sesión</h2>
 
-                {% with messages = get_flashed_messages(with_categories=true) %}
+               {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         {% for category, message in messages %}
-                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'info' }} flash" role="alert">
+                            <!-- Se agregan las clases: alert-dismissible fade show -->
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'info' }} alert-dismissible fade show flash" role="alert">
                                 {{ message }}
+                                <!-- Botón "X" para cerrar (versión blanca para fondo oscuro) -->
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         {% endfor %}
                     {% endif %}
                 {% endwith %}
 
                 <form method="POST" action="{{ url_for('auth.login') }}">
-                    <div class="mb-3">
+                    <div class="mb-3 text-start">
                         <label for="username" class="form-label">Usuario</label>
-                        <input type="text" class="form-control" id="username" name="username" value="{{ username|default('') }}" required>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ username|default('') }}" required placeholder="Usuario">
                     </div>
-                    <div class="mb-3">
+                    
+                    <!-- CAMPO PASSWORD CON OJO -->
+                    <div class="mb-3 text-start">
                         <label for="password" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password" required placeholder="••••••">
+                            <span class="input-group-text toggle-password" onclick="togglePassword('password', 'icon-login')">
+                                <i class="bi bi-eye-slash" id="icon-login"></i>
+                            </span>
+                        </div>
                     </div>
-                    <div class="mb-3">
+
+                    <div class="mb-3 text-start">
                         <label for="role" class="form-label">Rol</label>
                         <select class="form-select" id="role" name="role" required>
                             {% for role_obj in roles %}
-                          <option value="{{ role_obj.id_rol }}" {% if role_obj.id_rol == selected_role|default('') %}selected{% endif %}>
-                            {{ role_obj.nombre_rol }}
+                                <option value="{{ role_obj.id_rol }}" {% if role_obj.id_rol == selected_role|default('') %}selected{% endif %}>
+                                    {{ role_obj.nombre_rol }}
                                 </option>
                             {% endfor %}
                         </select>
@@ -51,7 +62,24 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS (CDN) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigF/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- SCRIPT PARA MOSTRAR/OCULTAR -->
+    <script>
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
+            } else {
+                input.type = "password";
+                icon.classList.remove("bi-eye");
+                icon.classList.add("bi-eye-slash");
+            }
+        }
+    </script>
 </body>
 </html>
