@@ -14,23 +14,53 @@
         <p>Mesa <strong>{{ pedido.mesa.id_mesa }}</strong> ha sido liberada.</p>
 
         <div class="card mx-auto mt-4" style="max-width: 500px;">
-            <div class="card-header">
+            <div class="card-header bg-dark text-white">
                 Resumen de la Transacción
             </div>
             <div class="card-body">
                 <p><strong>Total del Pedido:</strong> ${{ '%.2f' | format(pedido.total_pedido) }}</p>
                 <p><strong>Método de Pago:</strong> {{ pago.metodo_pago.capitalize() }}</p>
                 <p><strong>Cajero:</strong> {{ pago.cajero.nombre_completo }}</p>
+                
+                <hr>
+
                 {% if cambio > 0 %}
-                    <p class="h5 text-info"><strong>Cambio a entregar:</strong> ${{ '%.2f' | format(cambio) }}</p>
+                    <h4 class="text-primary mb-3">Cambio Total: ${{ '%.2f' | format(cambio) }}</h4>
+
+                    <!-- SECCIÓN DEL ALGORITMO VORAZ -->
+                    <!-- Solo se muestra si el backend envió el 'desglose' (Pago en Efectivo) -->
+                    {% if desglose %}
+                        <div class="alert alert-warning text-start">
+                            <h6 class="alert-heading fw-bold text-center mb-2">
+                                🤖 Sugerencia de Devuelta (Algoritmo Voraz)
+                            </h6>
+                            <p class="small text-center text-muted mb-2">Entregar al cliente:</p>
+                            <ul class="list-group list-group-flush">
+                                {% for valor, cantidad in desglose.items() %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent border-warning">
+                                        <span>
+                                            {% if valor >= 2000 %}
+                                                Billetes de ${{ valor }}
+                                            {% else %}
+                                                Monedas de ${{ valor }}
+                                            {% endif %}
+                                        </span>
+                                        <span class="badge bg-dark rounded-pill">{{ cantidad }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <!-- FIN SECCIÓN ALGORITMO -->
+
                 {% else %}
-                    <p class="text-muted">No hay cambio.</p>
+                    <p class="text-muted">No hay cambio (Pago exacto o electrónico).</p>
                 {% endif %}
             </div>
         </div>
 
         <div class="mt-5">
-            <a href="{{ url_for('cashier.cashier_dashboard') }}" class="btn btn-primary btn-lg">Volver al Dashboard del Cajero</a>
+            <a href="{{ url_for('cashier.cashier_dashboard') }}" class="btn btn-outline-primary">Volver al Dashboard del Cajero</a>
         </div>
     </div>
     <!-- Bootstrap JS y Popper.js (CDN) -->

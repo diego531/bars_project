@@ -7,6 +7,7 @@ from app.models.order import Pedido, DetallePedido # Necesitamos Pedido y Detall
 from app.models.branch import Mesa # Necesitamos Mesa
 from app.models.payment import Pago # Nuevo: El modelo Pago
 from app.models.user import User # Para current_user.id_usuario y roles
+from app.utils.algorithms import calcular_devuelta_optima # Importas tu algoritmo
 
 
 cashier_bp = Blueprint('cashier', __name__, template_folder='../templates/cashier')
@@ -122,8 +123,27 @@ def register_payment(pedido_id):
             
             # Calcular el cambio (opcional, para mostrar al cajero)
             cambio = monto_recibido - float(pedido.total_pedido)
-            return render_template('payment_success.html', pedido=pedido, pago=new_pago, cambio=cambio)
+        
+           # 3. APLICACIÓN DEL ALGORITMO VORAZ
+            desglose_devuelta = {} # Inicia vacío
 
+            # SOLO ejecutamos el algoritmo si es efectivo Y sobra dinero
+            if metodo_pago == 'efectivo' and cambio > 0:
+                desglose_devuelta = calcular_devuelta_optima(cambio)
+            elif metodo_pago != 'efectivo':
+                # Si es tarjeta/nequi, aunque hayan digitado de más, el cambio real es 0
+                # o simplemente no se entrega físico.
+                cambio = 0 
+            
+            # 4. Enviar respuesta a la plantilla
+            return render_template(
+                'payment_success.html', 
+                pedido=pedido, 
+                pago=new_pago, # Asegúrate de tener el objeto pago creado
+                cambio=cambio, 
+                desglose=desglose_devuelta # Pasamos el resultado (o vacío si no fue efectivo)
+            )
+            
         except ValueError:
             flash('El monto recibido debe ser un número válido.', 'danger')
             db.session.rollback()

@@ -7,6 +7,8 @@ from app.models.product import Producto # Necesario para listar productos dispon
 from app.models.branch import Sede # Necesario para la sede específica
 from app import db
 from sqlalchemy import exc
+from app.utils.algorithms import ordenar_inventario_por_stock, calcular_valor_inventario_recursivo # <--- IMPORTAR
+from app.utils.algorithms import recomendar_reabastecimiento # Mochila
 
 admin_inventory_bp = Blueprint('admin_inventory', __name__, template_folder='../templates/admin')
 
@@ -20,12 +22,57 @@ def require_admin_for_inventory():
 
 # --- RUTAS DE GESTIÓN DE INVENTARIO POR SEDE ---
 
+@admin_inventory_bp.route('/optimize/<int:sede_id>', methods=['GET', 'POST'])
+@login_required
+def optimize_restock(sede_id):
+    sede = Sede.query.get_or_404(sede_id)
+    resultado_items = []
+    ganancia_maxima = 0
+    presupuesto = 0
+
+    if request.method == 'POST':
+        presupuesto = request.form.get('presupuesto', type=int)
+        
+        # Obtenemos productos candidatos (ej: todos los productos del sistema)
+        productos = Producto.query.all()
+        lista_candidatos = []
+        
+        for p in productos:
+            # Definimos:
+            # Costo (Peso en la mochila) = costo_compra
+            # Valor (Ganancia en la mochila) = precio_venta - costo_compra
+            ganancia = float(p.precio_venta) - float(p.costo_compra)
+            
+            if ganancia > 0: # Solo consideramos productos rentables
+                lista_candidatos.append({
+                    'id': p.id_producto,
+                    'nombre': p.nombre,
+                    'costo': int(p.costo_compra),
+                    'ganancia': int(ganancia)
+                })
+        
+        # EJECUTAR ALGORITMO DE LA MOCHILA
+        resultado_items, ganancia_maxima = recomendar_reabastecimiento(presupuesto, lista_candidatos)
+
+    return render_template('optimize_restock.html', sede=sede, items=resultado_items, ganancia=ganancia_maxima, presupuesto=presupuesto)
+
 @admin_inventory_bp.route('/<int:sede_id>')
 def manage_inventory(sede_id):
     sede = Sede.query.get_or_404(sede_id)
-    inventario = Inventario.query.filter_by(id_sede=sede_id).order_by(Inventario.id_producto).all()
     
-    return render_template('manage_inventory.html', sede=sede, inventario=inventario)
+    # Traemos TODO sin ordenar por SQL
+    inventario_query = Inventario.query.filter_by(id_sede=sede_id).all()
+    
+    # 1. ALGORITMO ITERATIVO: Bubble Sort
+    # Ordenamos para ver primero los productos con menos stock
+    inventario_ordenado = ordenar_inventario_por_stock(inventario_query)
+    
+    # 2. ALGORITMO RECURSIVO: Valor Total
+    valor_total_sede = calcular_valor_inventario_recursivo(inventario_ordenado, len(inventario_ordenado))
+    
+    # Pasamos 'valor_total_sede' al template para mostrarlo arriba
+    return render_template('manage_inventory.html', sede=sede, inventario=inventario_ordenado, valor_total=valor_total_sede)
+
 
 @admin_inventory_bp.route('/assign/<int:sede_id>', methods=['GET', 'POST'])
 def assign_product_to_branch(sede_id):
