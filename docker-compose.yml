@@ -18,7 +18,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 120s # Tiempo en que mysql inicia
+      start_period: 180s # Tiempo en que mysql inicia
 
   app: # almacena la aplicacion 
     build: .

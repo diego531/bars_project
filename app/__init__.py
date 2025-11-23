@@ -38,12 +38,14 @@ def create_app():
     from app.routes.admin_inventory import admin_inventory_bp # NUEVO: Importar la blueprint de inventario
     from app.routes.waiter_orders import waiter_orders_bp # NUEVO: Importar la blueprint de pedidos de meseros
     from app.routes.cashier_routes import cashier_bp # NUEVO: Importar el blueprint del cajero
+    from app.routes.admin_reports import admin_reports_bp # NUEVO: Importar el blueprint de reportes
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(admin_branches_bp, url_prefix='/admin/branches') # NUEVO: Registrar la blueprint con su propio prefijo
     app.register_blueprint(admin_products_bp, url_prefix='/admin') # NUEVO: Registrar la nueva Blueprint con un prefijo /admin
     app.register_blueprint(admin_inventory_bp, url_prefix='/admin/inventory') # NUEVO: Registrar la blueprint de inventario
     app.register_blueprint(waiter_orders_bp, url_prefix='/waiter/orders') # NUEVO: Registrar la blueprint de meseros
     app.register_blueprint(cashier_bp, url_prefix='/cashier') # NUEVO: Registrar el blueprint del cajero
+    app.register_blueprint(admin_reports_bp, url_prefix='/admin') # NUEVO: Registrar el blueprint de reportes
     
 
     # Ruta por defecto para redirigir al login

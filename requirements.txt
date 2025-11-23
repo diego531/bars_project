@@ -7,3 +7,6 @@ bcrypt # Para hashing de contraseñas
 Flask-Login # Para gestión de sesiones de usuario
 cryptography
 python-dateutil
+pandas
+openpyxl
+xlsxwriter

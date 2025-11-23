@@ -188,6 +188,8 @@ CREATE TABLE IF NOT EXISTS `bars_db`.`Pagos` (
     
 -- INSERTAR DATOS INICIALES (para pruebas)
 INSERT INTO Roles (nombre_rol) VALUES ('Administrador'), ('Cajero'), ('Mesero');
+INSERT INTO Sedes (nombre_sede) VALUES ('Parkway'), ('85'), ('Restrepo');
+
 
 -- Insertar un usuario administrador de prueba (contraseña 'admin123' hashada)
 -- La contraseña 'admin123' hasheada con bcrypt (simulación):
