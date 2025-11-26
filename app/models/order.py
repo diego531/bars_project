@@ -1,5 +1,3 @@
-# app/models/order.py
-
 from app import db
 from datetime import datetime
 
@@ -12,7 +10,7 @@ from app.models.product import Producto # Para DetallePedido
 class Pedido(db.Model):
     __tablename__ = 'Pedidos'
     id_pedido = db.Column(db.Integer, primary_key=True)
-    estado = db.Column(db.String(20), nullable=False, default='pendiente') # Ej: 'pendiente', 'en_preparacion', 'servido', 'pagado', 'cancelado'
+    estado = db.Column(db.String(20), nullable=False, default='pendiente') # Ej: 'pendiente'
     total_pedido = db.Column(db.Numeric(10, 2), nullable=False, default=0.00)
     fecha_creacion = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     id_usuario_mesero = db.Column(db.Integer, db.ForeignKey('Usuarios.id_usuario'), nullable=False)

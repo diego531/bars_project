@@ -21,11 +21,10 @@
                 {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                 {% for category, message in messages %}
-                <!-- Se agregan las clases: alert-dismissible fade show -->
                 <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'info' }} alert-dismissible fade show flash"
                     role="alert">
                     {{ message }}
-                    <!-- Botón "X" para cerrar (versión blanca para fondo oscuro) -->
+                    <!-- Botón "X" para cerrar  -->
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"
                         aria-label="Close"></button>
                 </div>

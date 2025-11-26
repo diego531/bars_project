@@ -15,7 +15,6 @@
 
 
 body {
-    /* Asegúrate de tener la imagen en la carpeta correcta */
     background: url('../img/Fondo.jpg') no-repeat center center fixed;
     background-size: cover;
     font-family: 'Poppins', sans-serif;
@@ -237,8 +236,7 @@ select option {
     align-items: center; /* Centra verticalmente */
     min-height: 100vh;   /* IMPORTANTE: Usa el 100% de la altura de la ventana */
     padding: 1rem;
-    /* Si aún lo sientes muy arriba, puedes descomentar la siguiente línea: */
-    /* padding-top: 5rem; */ 
+
 }
 
 .login-card {
@@ -316,7 +314,7 @@ select option {
 }
 
 /* =========================================
-   CORRECCIÓN INPUT PASSWORD (Ocultar ojo navegador)
+    INPUT PASSWORD (Ocultar ojo navegador)
    ========================================= */
 
 /* Ocultar el ojo por defecto de Edge/Chrome */

@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta
 import io
-import pandas as pd # Necesitamos pandas para generar CSV/XLS
+import pandas as pd #pandas para generar CSV/XLS
 import pytz # Para manejar zonas horarias, si es necesario, o utc
 
 from app import db
@@ -15,7 +15,7 @@ from app.models.branch import Mesa
 
 admin_reports_bp = Blueprint('admin_reports', __name__, template_folder='../templates/admin')
 
-# Middleware para asegurar que solo los administradores accedan a estas rutas
+# Puente para asegurar que solo los administradores accedan a estas rutas
 @admin_reports_bp.before_request
 @login_required
 def require_admin_for_reports():

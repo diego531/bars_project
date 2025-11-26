@@ -22,7 +22,6 @@
                     Resumen de la Transacción
                 </div>
                 <div class="card-body text-white">
-                    <!-- AQUI SE AGREGÓ LA FECHA -->
                     <p><strong>Fecha:</strong> <span class="float-end">{{ pedido.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}</span></p>
                     <p><strong>Total Pagado:</strong> <span class="float-end">${{ '%.2f' | format(pedido.total_pedido) }}</span></p>
                     <p><strong>Método:</strong> <span class="float-end text-capitalize">{{ pago.metodo_pago }}</span></p>

@@ -1,5 +1,3 @@
-# app/models/inventory.py
-
 from app import db
 
 # Importar los modelos relacionados para que SQLAlchemy pueda establecer las relaciones

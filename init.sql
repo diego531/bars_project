@@ -29,7 +29,6 @@ CREATE TABLE IF NOT EXISTS `bars_db`.`Usuarios` (
   `nombre_completo` VARCHAR(45) NOT NULL,
   `id_rol` INT NOT NULL,
   `id_sede` INT NULL,
-  -- --- NUEVAS COLUMNAS PARA RECUPERACIÓN ---
   `pregunta_seguridad` VARCHAR(150) NULL,
   `respuesta_seguridad` VARCHAR(255) NULL,
   -- -----------------------------------------

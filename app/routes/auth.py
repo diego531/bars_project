@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from app.models.user import User, Role
-from app.models.branch import Sede # NUEVO: Importar el modelo Sede
+from app.models.branch import Sede # modelo Sede
 from app import db
-from werkzeug.security import generate_password_hash # Importa esto para hashear contraseñas
+from werkzeug.security import generate_password_hash # hashear contraseñas
 
 
 auth_bp = Blueprint('auth', __name__, template_folder='../templates')
@@ -101,8 +101,8 @@ def create_user():
         flash('Acceso denegado. Solo administradores pueden crear usuarios.', 'danger')
         return redirect(url_for('auth.dashboard'))
 
-    roles = Role.query.all()
-    sedes = Sede.query.all() # NUEVO: Obtener todas las sedes
+    roles = Role.query.all() # Obtener todos los roles
+    sedes = Sede.query.all() # Obtener todas las sedes
     
     if request.method == 'POST':
         nombre_usuario = request.form['nombre_usuario']
@@ -111,7 +111,7 @@ def create_user():
         confirmar_contrasena = request.form['confirmar_contrasena']
         id_rol_seleccionado = int(request.form['id_rol'])
         
-        # NUEVO: Obtener el id_sede, puede ser None si no se seleccionó o si el rol no lo requiere
+        # Obtener el id_sede, puede ser None si no se seleccionó o si el rol no lo requiere
         id_sede_seleccionada = request.form.get('id_sede')
         if id_sede_seleccionada:
             id_sede_seleccionada = int(id_sede_seleccionada)
@@ -132,6 +132,12 @@ def create_user():
         if contrasena != confirmar_contrasena:
             flash('Las contraseñas no coinciden.', 'danger')
             return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=None, is_edit=False, selected_role=id_rol_seleccionado, selected_sede=id_sede_seleccionada)
+        
+          # Validación: longitud mínima
+        if len(contrasena) < 6:
+           flash('La contraseña debe tener al menos 6 caracteres.', 'danger')
+           return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=None, is_edit=False, selected_role=id_rol_seleccionado, selected_sede=id_sede_seleccionada)
+
 
         if User.query.filter_by(nombre_usuario=nombre_usuario).first():
             flash('El nombre de usuario ya existe.', 'danger')
@@ -142,7 +148,7 @@ def create_user():
                 nombre_usuario=nombre_usuario,
                 nombre_completo=nombre_completo,
                 id_rol=id_rol_seleccionado,
-                id_sede=id_sede_seleccionada # NUEVO: Guardar la sede
+                id_sede=id_sede_seleccionada # Guardar la sede
             )
             new_user.set_password(contrasena)
             db.session.add(new_user)
@@ -153,7 +159,7 @@ def create_user():
             db.session.rollback()
             flash(f'Error al crear usuario: {e}', 'danger')
 
-    return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=None, is_edit=False) # NUEVO: Pasar sedes
+    return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=None, is_edit=False) # Pasar sedes
 
 @auth_bp.route('/admin/users/edit/<int:user_id>', methods=['GET', 'POST'])
 @login_required
@@ -163,8 +169,8 @@ def edit_user(user_id):
         return redirect(url_for('auth.dashboard'))
 
     user = User.query.get_or_404(user_id)
-    roles = Role.query.all()
-    sedes = Sede.query.all() # NUEVO: Obtener todas las sedes
+    roles = Role.query.all() # Obtener todos los roles
+    sedes = Sede.query.all() # Obtener todas las sedes
 
     if request.method == 'POST':
         new_nombre_usuario = request.form['nombre_usuario']
@@ -173,7 +179,7 @@ def edit_user(user_id):
         contrasena = request.form['contrasena']
         confirmar_contrasena = request.form['confirmar_contrasena']
         
-        # NUEVO: Obtener el id_sede del formulario
+        # Obtener el id_sede del formulario
         new_id_sede_seleccionada = request.form.get('id_sede')
         if new_id_sede_seleccionada:
             new_id_sede_seleccionada = int(new_id_sede_seleccionada)
@@ -194,6 +200,11 @@ def edit_user(user_id):
         if contrasena and contrasena != confirmar_contrasena:
             flash('Las contraseñas no coinciden.', 'danger')
             return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=user, is_edit=True, selected_role=new_id_rol_seleccionado, selected_sede=new_id_sede_seleccionada)
+        # Validación: si se envía una nueva contraseña, debe tener mínimo 6 caracteres
+        if contrasena and len(contrasena) < 6:
+            flash('La contraseña debe tener al menos 6 caracteres.', 'danger')
+            return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=user, is_edit=True, selected_role=new_id_rol_seleccionado, selected_sede=new_id_sede_seleccionada)
+       
 
         existing_user_with_name = User.query.filter(
             User.nombre_usuario == new_nombre_usuario,
@@ -207,7 +218,7 @@ def edit_user(user_id):
             user.nombre_usuario = new_nombre_usuario
             user.nombre_completo = new_nombre_completo
             user.id_rol = new_id_rol_seleccionado
-            user.id_sede = new_id_sede_seleccionada # NUEVO: Guardar la sede
+            user.id_sede = new_id_sede_seleccionada #Guardar la sede
 
             if contrasena:
                 user.set_password(contrasena)
@@ -219,7 +230,7 @@ def edit_user(user_id):
             db.session.rollback()
             flash(f'Error al actualizar usuario: {e}', 'danger')
 
-    return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=user, is_edit=True, selected_role=user.id_rol, selected_sede=user.id_sede) # NUEVO: Pasar sedes y selected_sede
+    return render_template('admin/user_form.html', roles=roles, sedes=sedes, user=user, is_edit=True, selected_role=user.id_rol, selected_sede=user.id_sede) #Pasar sedes y selected_sede
 
 @auth_bp.route('/admin/users/delete/<int:user_id>', methods=['POST'])
 @login_required
@@ -230,12 +241,10 @@ def delete_user(user_id):
 
     user_to_delete = User.query.get_or_404(user_id)
 
-    # Evitar que un administrador se elimine a sí mismo (esto es una buena práctica general)
+    # Evitar que un administrador se elimine a sí mismo 
     if user_to_delete.id_usuario == current_user.id_usuario:
         flash('No puedes eliminar tu propia cuenta de administrador.', 'danger')
         return redirect(url_for('auth.manage_users'))
-
-    # --- REGLA DE NEGOCIO ELIMINADA: No eliminar al único administrador ---
 
     try:
         db.session.delete(user_to_delete)
@@ -268,8 +277,6 @@ def change_password():
         if not old_password or not new_password or not confirm_new_password:
             flash('Por favor, completa todos los campos.', 'danger')
             return redirect(get_user_dashboard_url()) # Redirige al dashboard específico
-            # O podrías hacer: return render_template('change_password.html', dashboard_url=get_user_dashboard_url())
-            # Pero un redirect es más simple aquí para errores de formulario
 
         if not current_user.check_password(old_password):
             flash('La contraseña actual es incorrecta.', 'danger')

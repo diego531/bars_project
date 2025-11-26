@@ -3,16 +3,16 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app import db
-from app.models.order import Pedido, DetallePedido # Necesitamos Pedido y DetallePedido
-from app.models.branch import Mesa # Necesitamos Mesa
-from app.models.payment import Pago # Nuevo: El modelo Pago
+from app.models.order import Pedido, DetallePedido # Pedido y DetallePedido
+from app.models.branch import Mesa #  Mesa
+from app.models.payment import Pago #  El modelo Pago
 from app.models.user import User # Para current_user.id_usuario y roles
 from app.utils.algorithms import calcular_devuelta_optima # Voraz
 
 
 cashier_bp = Blueprint('cashier', __name__, template_folder='../templates/cashier')
 
-# Middleware para asegurar que solo los cajeros (o admins para pruebas) accedan a estas rutas
+# Puente para asegurar que solo los cajeros (o admins para pruebas) accedan a estas rutas
 @cashier_bp.before_request
 @login_required
 def require_cashier_for_payments():
@@ -23,7 +23,7 @@ def require_cashier_for_payments():
 
 @cashier_bp.route('/')
 def cashier_dashboard():
-    # Asegúrate de que current_user tenga una sede asignada si es cajero
+    # Asegúrarse de que current_user tenga una sede asignada si es cajero
     if current_user.role.nombre_rol == 'Cajero' and not current_user.id_sede:
         flash('Tu usuario de cajero no tiene una sede asignada. Contacta al administrador.', 'danger')
         return redirect(url_for('auth.dashboard'))
@@ -33,12 +33,6 @@ def cashier_dashboard():
         mesas_ocupadas = Mesa.query.filter_by(id_sede=current_user.id_sede, estado='ocupada').all()
     else: # Admin (para pruebas)
         mesas_ocupadas = Mesa.query.filter_by(estado='ocupada').all()
-    
-    # También se podrían mostrar pedidos pendientes directamente si es más eficiente
-    # pedidos_pendientes = Pedido.query.join(Mesa).filter(
-    #     Mesa.id_sede == current_user.id_sede,
-    #     Pedido.estado == 'servido' # Asumiendo un estado 'servido' antes de pagar
-    # ).all()
 
     return render_template('cashier_dashboard.html', mesas_ocupadas=mesas_ocupadas, user=current_user)
 
@@ -56,7 +50,7 @@ def view_order_for_payment(mesa_id):
         flash('Acceso denegado. Esta mesa no pertenece a tu sede asignada.', 'danger')
         return redirect(url_for('cashier.cashier_dashboard'))
 
-    # Buscar el pedido ACTIVO (pendiente, en_preparacion, servido) para esta mesa
+    # Buscar el pedido ACTIVO (pendiente) para esta mesa
     # Asumimos que solo hay un pedido "activo" por mesa en un momento dado para simplificar
     pedido = Pedido.query.filter_by(id_mesa=mesa.id_mesa).filter(
         Pedido.estado.in_(['pendiente', 'en_preparacion', 'servido']) # Estados donde el pedido está abierto
@@ -95,7 +89,7 @@ def register_payment(pedido_id):
 
         try:
             monto_recibido = float(monto_recibido_str)
-            # Aquí puedes añadir lógica para validar si el monto_recibido es suficiente
+            # validar si el monto_recibido es suficiente
             if monto_recibido < float(pedido.total_pedido):
                 flash('El monto recibido es menor al total del pedido.', 'warning')
                 return redirect(url_for('cashier.register_payment', pedido_id=pedido.id_pedido))
@@ -121,7 +115,7 @@ def register_payment(pedido_id):
             db.session.commit()
             flash(f'Pago del pedido {pedido.id_pedido} registrado exitosamente. Mesa {mesa.id_mesa} liberada.', 'success')
             
-            # Calcular el cambio (opcional, para mostrar al cajero)
+            # Calcular el cambio 
             cambio = monto_recibido - float(pedido.total_pedido)
 #--------------------------------------------------------------------------------------------------------------------------        
            # 3. APLICACIÓN DEL ALGORITMO VORAZ
@@ -139,11 +133,11 @@ def register_payment(pedido_id):
             return render_template(
                 'payment_success.html', 
                 pedido=pedido, 
-                pago=new_pago, # Asegúrate de tener el objeto pago creado
+                pago=new_pago, # objeto pago creado
                 cambio=cambio, 
                 desglose=desglose_devuelta # Pasamos el resultado (o vacío si no fue efectivo)
             )
-            
+#-----------------------------------------------------------------------------------------------------------------------------            
         except ValueError:
             flash('El monto recibido debe ser un número válido.', 'danger')
             db.session.rollback()

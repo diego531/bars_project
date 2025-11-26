@@ -2,12 +2,12 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app.models.product import CategoriaProducto, Producto
 from app import db
-from sqlalchemy import exc # Importar para manejar errores de integridad
+from sqlalchemy import exc #manejar errores de integridad
 
-# Crear una nueva Blueprint para las funcionalidades de administración de productos y categorías
+#Blueprint para las funcionalidades de administración de productos y categorías
 admin_products_bp = Blueprint('admin_products', __name__, template_folder='../templates/admin')
 
-# Middleware para asegurar que solo los administradores accedan a estas rutas
+#Puente para asegurar que solo los administradores accedan a estas rutas
 @admin_products_bp.before_request
 @login_required
 def require_admin_for_products():

@@ -84,7 +84,6 @@
                 <a href="{{ url_for('waiter_orders.add_products_to_order', pedido_id=pedido.id_pedido) }}" class="btn btn-success btn-lg flex-grow-1">
                     + Añadir Productos
                 </a>
-                <!-- Aquí podrías agregar botones para "Enviar a Cocina" o "Pedir Cuenta" -->
             {% else %}
                 <div class="alert alert-info w-100 text-center">Este pedido está cerrado o pagado.</div>
             {% endif %}

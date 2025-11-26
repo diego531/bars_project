@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from app.models.branch import Sede, Mesa
 from app import db
 
-# Define la nueva Blueprint
+# Blueprint
 admin_branches_bp = Blueprint('admin_branches', __name__, template_folder='../templates/admin')
 
 # --- Rutas de Gestión de Sedes ---
@@ -23,7 +23,7 @@ def manage_branches():
             'num_mesas': sede.mesas.count(),
             'num_productos_en_inventario': sede.inventarios.count()
         })
-    return render_template('manage_branches.html', sedes_con_info=sedes_con_info) # Renombré la variable para mayor claridad
+    return render_template('manage_branches.html', sedes_con_info=sedes_con_info)
 
 @admin_branches_bp.route('/create', methods=['GET', 'POST'])
 @login_required
@@ -59,7 +59,7 @@ def create_branch():
 
             db.session.commit()
             flash('Sede y mesas creadas exitosamente.', 'success')
-            return redirect(url_for('admin_branches.manage_branches')) # Cambiar la URL aquí
+            return redirect(url_for('admin_branches.manage_branches')) 
         except Exception as e:
             db.session.rollback()
             flash(f'Error al crear sede: {e}', 'danger')
@@ -107,7 +107,7 @@ def edit_branch(branch_id):
 
             db.session.commit()
             flash('Sede y mesas actualizadas exitosamente.', 'success')
-            return redirect(url_for('admin_branches.manage_branches')) # Cambiar la URL aquí
+            return redirect(url_for('admin_branches.manage_branches'))
         except Exception as e:
             db.session.rollback()
             flash(f'Error al actualizar sede: {e}', 'danger')
@@ -131,4 +131,4 @@ def delete_branch(branch_id):
         db.session.rollback()
         flash(f'Error al eliminar sede: {e}', 'danger')
 
-    return redirect(url_for('admin_branches.manage_branches')) # Cambiar la URL aquí
+    return redirect(url_for('admin_branches.manage_branches')) 

@@ -7,11 +7,11 @@ from app.models.order import Pedido, DetallePedido
 from app.models.branch import Sede, Mesa
 from app.models.product import Producto
 from app.models.inventory import Inventario
-from app.models.user import User # Asegurarse de tener el modelo User para current_user.id_usuario
+from app.models.user import User # modelo User para current_user.id_usuario
 
 waiter_orders_bp = Blueprint('waiter_orders', __name__, template_folder='../templates/waiter')
 
-# Middleware para asegurar que solo los meseros (o admins por ahora) accedan a estas rutas
+# Puente para asegurar que solo los meseros (o admins por ahora) accedan a estas rutas
 @waiter_orders_bp.before_request
 @login_required
 def require_waiter_for_orders():
@@ -38,12 +38,11 @@ def waiter_dashboard():
             # Filtra mesas por la sede del mesero actual y estado 'libre'
             mesas_disponibles = Mesa.query.filter_by(id_sede=current_user.id_sede, estado='libre').all()
             
-            # Pedidos abiertos del mesero actual, asociados a su sede (es una buena práctica)
+            # Pedidos abiertos del mesero actual, asociados a su sede 
             # Aunque la consulta de Pedido ya filtra por id_usuario_mesero, lo cual ya implica la sede
             pedidos_abiertos = Pedido.query.filter_by(id_usuario_mesero=current_user.id_usuario, estado='pendiente').all()
     elif current_user.role.nombre_rol == 'Administrador':
-        # Para administradores que acceden a este dashboard (para pruebas, por ejemplo)
-        # Podrías mostrar todas las mesas libres o pedirles que seleccionen una sede
+        # Para administradores que acceden a este dashboard 
         mesas_disponibles = Mesa.query.filter_by(estado='libre').all()
         pedidos_abiertos = Pedido.query.filter_by(estado='pendiente').all() # O filtrar por algún admin si tuviera pedidos
     

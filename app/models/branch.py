@@ -5,7 +5,7 @@ class Sede(db.Model):
     id_sede = db.Column(db.Integer, primary_key=True)
     nombre_sede = db.Column(db.String(45), unique=True, nullable=False) # Haremos que el nombre sea único y no nulo
     mesas = db.relationship('Mesa', backref='sede', lazy='dynamic', cascade='all, delete-orphan') # Relación con Mesa
-     # NUEVA RELACIÓN: Inventarios asociados a esta sede
+     #Inventarios asociados a esta sede
     inventarios = db.relationship('Inventario', backref='sede', lazy='dynamic', cascade='all, delete-orphan')
 
     def __repr__(self):

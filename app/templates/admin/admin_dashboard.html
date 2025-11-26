@@ -18,9 +18,9 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- Se eliminó el menú de navegación izquierdo (Usuarios, Sedes, etc.) -->
+             
                 
-                <!-- Menú de Usuario alineado a la derecha con ms-auto -->
+                <!-- Menú de Usuario -->
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><span class="nav-link">Hola, {{ user.nombre_completo }}</span></li>
                     <li class="nav-item dropdown">
@@ -38,7 +38,6 @@
 
     <div class="container mt-5">
         <h1 class="mb-2 text-white">Panel de Control</h1>
-        <!-- CAMBIO: Usamos text-light en lugar de text-muted para mayor visibilidad -->
         <p class="text-light mb-4" style="opacity: 0.8;">Bienvenido al sistema de gestión BARS.</p>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -58,7 +57,6 @@
                 <div class="card h-100">
                     <div class="card-body text-center">
                         <h5 class="card-title">Usuarios</h5>
-                        <!-- También ajusté este texto para que sea más legible -->
                         <p class="card-text text-white-50">Administra meseros y cajeros.</p>
                         <a href="{{ url_for('auth.manage_users') }}" class="btn btn-primary w-100">GESTIONAR</a>
                     </div>

@@ -1,7 +1,7 @@
 from app import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.models.branch import Sede # NUEVO: Asegúrate de que Sede esté importado aquí
+from app.models.branch import Sede #Asignacion de sede
 
 class Role(db.Model):
     __tablename__ = 'Roles'
@@ -19,13 +19,13 @@ class User(UserMixin, db.Model):
     contrasena = db.Column(db.String(255), nullable=False) # Guardará el hash
     nombre_completo = db.Column(db.String(45), nullable=False)
     id_rol = db.Column(db.Integer, db.ForeignKey('Roles.id_rol'), nullable=False)
-    # NUEVO: Añadir id_sede
+
     id_sede = db.Column(db.Integer, db.ForeignKey('Sedes.id_sede'), nullable=True) # Puede ser NULL para administradores globales
-     # --- NUEVOS CAMPOS PARA RECUPERACIÓN ---
-    pregunta_seguridad = db.Column(db.String(150), nullable=True) # Ej: "¿Nombre de tu primera mascota?"
+     # --- RECUPERACIÓN ---
+    pregunta_seguridad = db.Column(db.String(150), nullable=True) # pregunta de seguridad
     respuesta_seguridad = db.Column(db.String(255), nullable=True) # Hash de la respuesta
     
-    sede = db.relationship('Sede', backref='usuarios', lazy=True) # Asegúrate de que esta línea exista
+    sede = db.relationship('Sede', backref='usuarios', lazy=True) # relacion con sede
 
 
     def set_password(self, password):
@@ -33,7 +33,7 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.contrasena, password)
-      # --- NUEVOS MÉTODOS ---
+      # --- MÉTODOS ---
     def set_security_answer(self, answer):
         # Convertimos a minúsculas para que no importe mayús/minús al recuperar
         self.respuesta_seguridad = generate_password_hash(answer.lower().strip(), method='pbkdf2:sha256')

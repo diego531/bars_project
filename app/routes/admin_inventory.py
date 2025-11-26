@@ -1,8 +1,6 @@
-# app/routes/admin_inventory.py
-
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from app.models.inventory import Inventario # Importar el nuevo modelo de Inventario
+from app.models.inventory import Inventario # modelo de Inventario
 from app.models.product import Producto # Necesario para listar productos disponibles
 from app.models.branch import Sede # Necesario para la sede específica
 from app import db
@@ -12,7 +10,7 @@ from app.utils.algorithms import recomendar_reabastecimiento # Mochila
 
 admin_inventory_bp = Blueprint('admin_inventory', __name__, template_folder='../templates/admin')
 
-# Middleware para asegurar que solo los administradores accedan a estas rutas
+# Puente para asegurar que solo los administradores accedan a estas rutas
 @admin_inventory_bp.before_request
 @login_required
 def require_admin_for_inventory():
@@ -100,13 +98,6 @@ def assign_product_to_branch(sede_id):
         # Si se bloquea explícitamente, la cantidad debería ser 0.
         if esta_bloqueado:
             cantidad = 0
-
-        # No es necesario verificar existing_inventory aquí porque productos_disponibles ya filtra esto.
-        # Pero si se quisiera una doble verificación:
-        # existing_inventory = Inventario.query.filter_by(id_producto=id_producto, id_sede=sede_id).first()
-        # if existing_inventory:
-        #    flash(f'El producto "{existing_inventory.producto.nombre}" ya está asignado a esta sede. Puedes editarlo.', 'warning')
-        #    return redirect(url_for('admin_inventory.edit_inventory_item', item_id=existing_inventory.id_inventario))
 
         try:
             new_inventory_item = Inventario(

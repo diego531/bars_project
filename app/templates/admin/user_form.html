@@ -24,7 +24,7 @@
             {% endwith %}
 
             <form action="{{ url_for('auth.create_user') if not is_edit else url_for('auth.edit_user', user_id=user.id_usuario) }}" method="POST">
-                <!-- Otros campos (Usuario, Nombre, etc...) igual que antes -->
+                <!-- Otros campos -->
                 <div class="mb-3">
                     <label for="nombre_usuario" class="form-label">Nombre de Usuario:</label>
                     <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario" value="{{ user.nombre_usuario if user else '' }}" required>
@@ -56,7 +56,7 @@
                     </div>
                 </div>
 
-                <!-- Selector de Rol y Sede (Mismo código de antes) -->
+                <!-- Selector de Rol y Sede  -->
                 <div class="mb-3">
                     <label for="id_rol" class="form-label">Rol:</label>
                     <select class="form-select" id="id_rol" name="id_rol" required>
@@ -85,7 +85,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- SCRIPT REUTILIZABLE -->
     <script>
         // Función para mostrar/ocultar contraseña
         function togglePassword(inputId, iconId) {
@@ -102,7 +101,7 @@
             }
         }
 
-        // Lógica de Sede/Rol (Tu código original)
+        // Lógica de Sede/Rol 
         document.addEventListener('DOMContentLoaded', function() {
             const roleSelect = document.getElementById('id_rol');
             const sedeSelectGroup = document.getElementById('sede_selection_group');
@@ -110,7 +109,7 @@
 
             function toggleSedeField() {
                 const selectedRoleId = roleSelect.value;
-                // Ajusta los IDs de roles según tu BD (ej: 2=Cajero, 3=Mesero)
+                // Ajusta los IDs de roles según la BD (ej: 2=Cajero, 3=Mesero)
                 if (selectedRoleId == 2 || selectedRoleId == 3) { 
                     sedeSelectGroup.style.display = 'block';
                     sedeInput.setAttribute('required', 'required');

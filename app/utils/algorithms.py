@@ -1,5 +1,5 @@
 # ---------------------------------------------------------
-# 1. ALGORITMO VORAZ (GREEDY) - Calculadora de Devuelta
+# 1. ALGORITMO VORAZ  - Calculadora de Devuelta
 # ---------------------------------------------------------
 def calcular_devuelta_optima(cambio):
     """

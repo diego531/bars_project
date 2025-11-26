@@ -46,7 +46,6 @@
 
         {% if inventario %}
             <div class="table-responsive">
-                <!-- AÑADÍ la clase 'table' y 'table-hover' de Bootstrap -->
                 <table class="table table-hover align-middle">
                     <thead>
                         <tr>
@@ -79,7 +78,6 @@
                                 {% endif %}
                             </td>
                             <td>
-                            <!-- CAMBIO: Quitamos 'btn-group' y usamos d-flex con gap-2 para separar -->
                             <div class="d-flex gap-2 justify-content-start">
                                 
                                 <!-- Botón Editar -->
@@ -107,7 +105,7 @@
                     </tbody>
                 </table>
             </div>
-            <p class="text-end text-muted mt-2"><small>* Ordenado por cantidad (Bubble Sort)</small></p>
+            <p class="text-end text-muted mt-2"><small>* Ordenado por cantidad de menor a mayor</small></p>
         {% else %}
             <div class="alert alert-secondary text-center p-5">
                 <h4>Inventario vacío</h4>
